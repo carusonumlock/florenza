@@ -1,0 +1,406 @@
+:root {
+  --bg: #060606;
+  --bg-alt: #0c0b09;
+  --gold: #cda45e;
+  --gold-bright: #e9cd94;
+  --silver: #cfd3d6;
+  --text: #f3efe8;
+  --text-dim: #a89f92;
+  --nav-h: 76px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+
+/* ---------- Nav ---------- */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-h);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,0));
+  pointer-events: none;
+}
+
+.nav__inner {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  pointer-events: auto;
+}
+
+.nav__links {
+  display: flex;
+  gap: 32px;
+  font-size: 14px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.nav__links a {
+  text-decoration: none;
+  color: var(--text);
+  opacity: .85;
+  transition: opacity .2s ease;
+}
+
+.nav__links a:hover { opacity: 1; }
+
+@media (max-width: 640px) {
+  .nav__links { gap: 18px; font-size: 12px; }
+}
+
+/* ---------- Intro scroll: hero + doorway + categoria, one pin ---------- */
+/* A single sticky pin stays on screen for the entire intro — the ring
+   disassembling, the window opening, the rings lifting off the pedestal.
+   Nothing here ever unpins/reattaches or hands off between elements, so
+   there's no point where the page visibly moves down to "the next
+   section": it's one continuous scroll-driven timeline on one screen.
+   The three phases are just weighted slices of that one timeline,
+   computed in main.js. */
+.introScroll {
+  position: relative;
+  height: 1360vh;
+}
+
+.introScroll__pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #040704 url("../background.png") center center / cover no-repeat;
+}
+
+.introScroll__hero-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  /* Cap at the source's native 1280x720 — scaling a 720p clip up to fill a
+     larger viewport is what made it look soft/pixelated; this lets it
+     downscale freely but never upscale past its real resolution. */
+  max-width: 1280px;
+  max-height: 720px;
+  display: block;
+  object-fit: contain;
+  background: #040704 url("../background.png") center center / cover no-repeat;
+}
+
+.introScroll__scrollcue {
+  position: absolute;
+  left: 50%;
+  bottom: 40px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  transition: opacity .4s ease;
+}
+
+.introScroll__scrollcue-line {
+  width: 1px;
+  height: 34px;
+  background: linear-gradient(to bottom, var(--text-dim), transparent);
+  animation: cue-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes cue-pulse {
+  0%, 100% { opacity: .3; transform: scaleY(.7); transform-origin: top; }
+  50% { opacity: 1; transform: scaleY(1); transform-origin: top; }
+}
+
+.introScroll__payoff {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  transform: translate(-50%, 16px);
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s ease, transform .5s ease;
+}
+
+.introScroll__payoff.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+
+.hero__tagline {
+  margin: 0 0 18px;
+  font-size: 15px;
+  letter-spacing: .06em;
+  color: var(--text-dim);
+}
+
+.hero__cta {
+  display: inline-block;
+  padding: 14px 34px;
+  border: 1px solid var(--gold);
+  color: var(--gold-bright);
+  text-decoration: none;
+  font-size: 13px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  transition: background .25s ease, color .25s ease;
+}
+
+.hero__cta:hover {
+  background: var(--gold);
+  color: #060606;
+}
+
+/* A window opens (clip-path grows) over the frozen hero frame, revealing
+   the Alianças layer underneath — always at its true, unscaled size, so
+   there's no zoom/crop jump when the window finishes opening. Once fully
+   open the clip-path just stays at inset(0) for the rest of the scroll. */
+.introScroll__window {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(50% 50%);
+  will-change: clip-path;
+}
+
+.introScroll__window-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-alt);
+}
+
+/* Shared 1280x720 coordinate box — the canvas, its watermark patch and the
+   Alianças title all sit inside it, so the title's position stays locked
+   to the pedestal image itself regardless of viewport shape.
+   Sized via aspect-ratio + min() (object-fit: contain's math, done in CSS)
+   instead of independent width/height: 100%. That old version let the box
+   take on the pin's own (often non-16:9) shape, so the canvas's own
+   object-fit: contain letterboxed *inside* it — and the watermark patch,
+   positioned by percentage against the box rather than the letterboxed
+   image, drifted off the actual pedestal corner on portrait/mobile
+   viewports, leaving the watermark exposed. Forcing the box itself to
+   always be 1280:720 means the canvas fills it exactly, with no internal
+   letterboxing, so the patch's percentage position always lands on the
+   same spot of the actual image. */
+.introScroll__stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(100%, 1280px, calc(100vh * 1280 / 720));
+  aspect-ratio: 1280 / 720;
+}
+
+.introScroll__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  opacity: 0;
+  /* Oval "spotlight" mask: the pedestal and rings roam across nearly the
+     full frame over the course of the animation, so the opaque core is
+     kept large — only the corners feather to transparent, blending the
+     frame's rectangular edges into the section background without ever
+     clipping the rings or the pedestal. */
+  mask-image: radial-gradient(ellipse 62% 66% at 50% 52%, #000 0%, #000 68%, rgba(0,0,0,.6) 85%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 62% 66% at 50% 52%, #000 0%, #000 68%, rgba(0,0,0,.6) 85%, transparent 100%);
+}
+
+/* Darkens the bottom-right corner of the champola frames, enough to fully
+   bury the generator's watermark mark (measured at ~92%/85% of the 1280x720
+   frame) without touching the rings or pedestal, which never sit that
+   close to the corner. Uses an explicit ellipse size (percentages of the
+   box's own width/height) rather than the "circle"/farthest-corner
+   default, so the patch stays the same size and shape regardless of the
+   stage box's aspect ratio at a given viewport. */
+.watermark-patch {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 26% 30% at 92% 85%, #000 0%, rgba(0,0,0,.95) 45%, rgba(0,0,0,0) 100%);
+  pointer-events: none;
+}
+
+/* Two marble slabs, anchored to each edge, slide in and meet at the
+   center once the rings have settled on the pedestal (catT = 1) — and
+   later slide back out the same way in phase 6, driven in main.js via
+   translateX: 100% (off-screen) to 0 (meeting at center) and back. */
+.introScroll__wall {
+  position: absolute;
+  top: 0;
+  width: 52%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.introScroll__wall--left {
+  left: 0;
+  transform: translateX(-100%);
+}
+
+.introScroll__wall--right {
+  right: 0;
+  transform: translateX(100%) scaleX(-1);
+}
+
+/* Fades in centered over the closed walls (phase 5), holds, then fades
+   back out as the walls reopen (phase 6). */
+.introScroll__letra {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 58%;
+  max-width: 760px;
+  height: auto;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  /* 58% of the viewport reads as a tiny sliver of text on a phone —
+     widen it so the lockup is actually legible over the closed doors. */
+  .introScroll__letra { width: 92%; max-width: none; }
+}
+
+/* Sits behind the walls; revealed as they part in phase 6. Structure
+   only — media placeholders for the actual ring photography to be
+   dropped in later, per exem.jpg's card anatomy. */
+.introScroll__reveal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 3vh, 36px);
+  background:
+    linear-gradient(180deg, rgba(2, 5, 2, .5), rgba(2, 5, 2, .72)),
+    url("../background.png") center center / cover no-repeat,
+    #040704;
+  padding: 24px;
+  opacity: 0;
+}
+
+.introScroll__reveal-eyebrow {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--gold-bright);
+}
+
+.introScroll__reveal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 220px));
+  gap: clamp(12px, 2vw, 24px);
+  width: 100%;
+  max-width: 1100px;
+  justify-content: center;
+}
+
+.productCard {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(205,164,94,.18);
+  padding: 20px;
+}
+
+.productCard__media {
+  height: clamp(90px, 16vh, 200px);
+  margin-bottom: 18px;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(233,205,148,.28), rgba(233,205,148,0) 60%),
+    linear-gradient(135deg, #1a1712, #0a0908);
+}
+
+.productCard__name {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.productCard__material {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.productCard__price {
+  display: block;
+  font-size: 15px;
+  color: var(--gold-bright);
+}
+
+@media (max-width: 860px) {
+  .introScroll__reveal-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+  background: #030303;
+  padding: 48px 32px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+
+.footer__inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.footer__mark {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: .8;
+}
+
+.footer__gem { width: 18px; height: auto; }
+
+.footer__word {
+  font-family: "Alex Brush", cursive;
+  font-size: 26px;
+  line-height: 1;
+  background: linear-gradient(180deg, #fbfbfb 0%, #cfd3d6 45%, #8a9095 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.footer p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 13px;
+}

@@ -1,0 +1,23 @@
+{
+  "name": "prototipo",
+  "version": "1.0.0",
+  "description": "Site da Florenza — hero com desmontagem do anel via scroll, usando vídeo scrubado por posição de scroll.",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild js/main.js --bundle --format=iife --minify --outfile=js/bundle.js",
+    "watch": "esbuild js/main.js --bundle --format=iife --outfile=js/bundle.js --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "esbuild": "^0.28.1"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true
+  },
+  "dependencies": {
+    "gsap": "^3.15.0"
+  }
+}

@@ -1,0 +1,720 @@
+/* ============================================================
+   ALIANÇAS — catálogo, editorial de materiais e encerramento
+   Módulo adicionado após o .introScroll (pedestal cinematográfico).
+   Não redefine nada em style.css — apenas soma a ele, reaproveitando
+   os tokens de :root (--bg, --gold, --text, etc.) já declarados lá.
+   ============================================================ */
+
+:root {
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Inter", "Segoe UI", sans-serif;
+  --gold-line: rgba(205, 164, 94, .32);
+  --hairline: rgba(255, 255, 255, .07);
+}
+
+/* ---------- Elementos compartilhados ---------- */
+
+.section-eyebrow {
+  margin: 0 0 14px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  color: var(--gold-bright);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 30px;
+  border: 1px solid var(--gold-line);
+  color: var(--gold-bright);
+  text-decoration: none;
+  background: none;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .35s ease, color .35s ease, border-color .35s ease;
+}
+
+.btn-outline:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #0a0a08;
+}
+
+.btn-outline--dark {
+  border-color: rgba(23, 21, 18, .32);
+  color: #171512;
+}
+
+.btn-outline--dark:hover {
+  background: #171512;
+  border-color: #171512;
+  color: #efece6;
+}
+
+.btn-outline svg { width: 14px; height: 14px; transition: transform .35s ease; }
+.btn-outline:hover svg { transform: translateX(3px); }
+
+/* ---------- Nossa Coleção ---------- */
+
+.catalog {
+  position: relative;
+  isolation: isolate;
+  background: #040704 url("../background.png") center center / cover no-repeat fixed;
+  padding: clamp(88px, 12vw, 150px) 32px 120px;
+}
+
+.catalog::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, rgba(2, 5, 2, .35) 0%, rgba(2, 5, 2, .58) 45%, rgba(2, 5, 2, .85) 100%);
+  pointer-events: none;
+}
+
+.catalog__head,
+.catalog__grid,
+.catalog__more {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .catalog { background-attachment: scroll; }
+}
+
+.catalog__head {
+  max-width: 1200px;
+  margin: 0 auto 52px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--hairline);
+  padding-bottom: 32px;
+}
+
+.catalog__heading { max-width: 620px; }
+
+.catalog__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(32px, 4.2vw, 54px);
+  letter-spacing: .01em;
+  color: var(--text);
+}
+
+.catalog__filters {
+  display: flex;
+  gap: 30px;
+  font-family: var(--font-sans);
+  padding-bottom: 4px;
+}
+
+.catalog__filter {
+  background: none;
+  border: none;
+  border-bottom: 1px solid transparent;
+  padding: 0 0 8px;
+  color: var(--text-dim);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color .3s ease, border-color .3s ease;
+}
+
+.catalog__filter:hover { color: var(--text); }
+
+.catalog__filter.is-active {
+  color: var(--gold-bright);
+  border-color: var(--gold);
+}
+
+.catalog__grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 26px;
+}
+
+.ringCard {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(205, 164, 94, .22);
+  background: linear-gradient(165deg, #0f160f 0%, #080b08 55%, #050705 100%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .4), 0 18px 40px -20px rgba(0, 0, 0, .6);
+  transition: opacity .38s ease, transform .38s ease, border-color .45s ease, box-shadow .45s ease;
+}
+
+.ringCard::before,
+.ringCard::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 40px;
+  height: 40px;
+  z-index: 3;
+  opacity: .5;
+  pointer-events: none;
+  transition: opacity .35s ease;
+}
+
+.ringCard::before {
+  left: 0;
+  background: linear-gradient(135deg, transparent 48.5%, var(--gold) 49.5%, var(--gold) 50.5%, transparent 51.5%);
+}
+
+.ringCard::after {
+  right: 0;
+  background: linear-gradient(225deg, transparent 48.5%, var(--gold) 49.5%, var(--gold) 50.5%, transparent 51.5%);
+}
+
+.ringCard:hover {
+  border-color: var(--gold-line);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .4), 0 22px 46px -18px rgba(0, 0, 0, .7), 0 0 30px -8px rgba(205, 164, 94, .18);
+}
+
+.ringCard:hover::before,
+.ringCard:hover::after { opacity: .9; }
+
+.ringCard.is-hidden {
+  opacity: 0;
+  transform: scale(.96);
+  pointer-events: none;
+}
+
+.ringCard__fav {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 6, 6, .4);
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 50%;
+  color: var(--text);
+  cursor: pointer;
+  opacity: .8;
+  transition: opacity .3s ease, border-color .3s ease;
+  z-index: 2;
+}
+
+.ringCard__fav:hover { opacity: 1; border-color: var(--gold); }
+.ringCard__fav svg { width: 14px; height: 14px; }
+
+.ringCard__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: linear-gradient(160deg, #121a12, #06090a);
+}
+
+.ringCard__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 38%, transparent 40%, rgba(0, 0, 0, .5) 100%);
+  pointer-events: none;
+}
+
+.ringCard__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  transform: scale(1.08);
+  transition: transform .55s cubic-bezier(.22, .61, .36, 1), filter .55s ease;
+}
+
+.ringCard:hover .ringCard__img { transform: scale(1.14); filter: brightness(1.03); }
+
+.ringCard__body { padding: 22px 22px 24px; }
+
+.ringCard__name {
+  margin: 0 0 4px;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 21px;
+  letter-spacing: .01em;
+  color: var(--text);
+}
+
+.ringCard__material {
+  margin: 0 0 12px;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.ringCard__desc {
+  margin: 0 0 18px;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+
+.ringCard__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--gold-line);
+}
+
+.ringCard__price {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  color: var(--gold-bright);
+}
+
+.ringCard__view {
+  color: var(--text-dim);
+  font-size: 15px;
+  line-height: 1;
+  display: inline-block;
+  text-decoration: none;
+  transition: transform .35s ease, color .35s ease;
+}
+
+.ringCard:hover .ringCard__view,
+.ringCard:focus-within .ringCard__view {
+  transform: translateX(4px);
+  color: var(--gold-bright);
+}
+
+.catalog__more { text-align: center; margin-top: 54px; }
+
+@media (max-width: 1100px) {
+  .catalog__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .catalog { padding: 80px 20px 88px; }
+  .catalog__head { flex-direction: column; align-items: flex-start; gap: 22px; padding-bottom: 26px; }
+  .catalog__filters { gap: 20px; flex-wrap: wrap; }
+  .catalog__grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+}
+
+/* ---------- Editorial: Prata 925 / Ouro ----------
+   Referência visual: nova/refmontagem.png. O fundo em mármore que
+   transita de branco (prata) a preto com veios dourados (ouro), e os
+   dois "quadros" de mármore por trás de cada bloco de texto, vêm de
+   nova/assetspo.png — recortados para prototipo/modelosalianca/ como
+   marmore-fundo.png, marmore-quadro-prata.png e marmore-quadro-ouro.png. */
+
+.material {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  background: #d8d3c8 url("../modelosalianca/marmore-fundo.png") center / cover no-repeat;
+}
+
+.material__media {
+  position: relative;
+  overflow: hidden;
+  min-height: 460px;
+}
+
+.material__media .material__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform-origin: 50% 50%;
+}
+
+.material__media--silver .material__ring {
+  transform: scale(2.1);
+  mask-image: radial-gradient(ellipse 44% 36% at 50% 46%, #000 0%, #000 30%, transparent 68%);
+  -webkit-mask-image: radial-gradient(ellipse 44% 36% at 50% 46%, #000 0%, #000 30%, transparent 68%);
+}
+
+.material__media--gold .material__ring {
+  transform: scale(2.1) scaleX(-1);
+  filter: sepia(.55) saturate(2.3) hue-rotate(-12deg) brightness(1.12) contrast(1.05);
+  mask-image: radial-gradient(ellipse 46% 40% at 50% 46%, #000 0%, #000 35%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 46% 40% at 50% 46%, #000 0%, #000 35%, transparent 75%);
+}
+
+.material__content {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: clamp(28px, 5vh, 56px) 0;
+  padding: clamp(40px, 5vw, 64px) clamp(28px, 4vw, 48px);
+  border-radius: 20px;
+  box-shadow: 0 34px 64px -24px rgba(0, 0, 0, .5);
+}
+
+.material__content--silver {
+  background: #e9e6df url("../modelosalianca/marmore-quadro-prata.png") center / cover no-repeat;
+  color: #171512;
+}
+
+.material__content--gold {
+  background: #0c0a06 url("../modelosalianca/marmore-quadro-ouro.png") center / cover no-repeat;
+  color: var(--text);
+}
+
+.material__title {
+  margin: 0 0 8px;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(26px, 2.6vw, 38px);
+  letter-spacing: .05em;
+}
+
+.material__tagline {
+  margin: 0 0 22px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.material__content--silver .material__tagline { color: #4a4238; }
+.material__content--gold .material__tagline { color: var(--gold-bright); }
+
+.material__text {
+  margin: 0 0 28px;
+  max-width: 32ch;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.75;
+  opacity: .8;
+}
+
+.material__features {
+  list-style: none;
+  margin: 0 0 32px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.material__features li {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.material__features svg { width: 13px; height: 13px; flex: none; color: var(--gold); }
+
+/* Botões metálicos — placa escovada, no lugar do .btn-outline genérico
+   só aqui, ecoando "BOTÃO PRATA" / "BOTÃO OURO" da referência. */
+
+.material__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  align-self: flex-start;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 3px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), inset 0 -1px 0 rgba(0, 0, 0, .15), 0 10px 20px -10px rgba(0, 0, 0, .4);
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+
+.material__btn:hover { transform: translateY(-1px); }
+.material__btn svg { width: 14px; height: 14px; transition: transform .35s ease; }
+.material__btn:hover svg { transform: translateX(3px); }
+
+.material__btn--silver {
+  color: #24221f;
+  background: linear-gradient(100deg, #f6f6f6 0%, #d3d5d8 22%, #f9f9fa 45%, #aeb2b8 62%, #eceef0 80%, #c7cacd 100%);
+}
+
+.material__btn--gold {
+  color: #2b1c07;
+  background: linear-gradient(100deg, #f5e5ae 0%, #cda45e 24%, #f6ecc9 48%, #93701f 66%, #e9cd94 84%, #ad8438 100%);
+}
+
+@media (max-width: 1100px) {
+  .material { grid-template-columns: 1fr 1fr; }
+  .material__media { min-height: 320px; }
+}
+
+@media (max-width: 720px) {
+  .material { grid-template-columns: 1fr; background-size: cover; }
+  .material__media { min-height: 280px; }
+  .material__content { margin: 0; border-radius: 0; }
+}
+
+/* ---------- Encerramento ---------- */
+
+.finalCta {
+  position: relative;
+  background: var(--bg);
+  padding: clamp(110px, 16vw, 190px) 32px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.finalCta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 55% 65% at 50% 42%, rgba(205, 164, 94, .07), transparent 72%);
+  pointer-events: none;
+}
+
+.finalCta__inner { position: relative; }
+
+.finalCta__subtitle {
+  margin: 0 0 44px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* nova/fonteesm.png — mesmo texto de encerramento ("Símbolos de amor.
+   Marcas para sempre." + a chamada para rolar), já cravejado em
+   esmeralda/dourado, recortado com fundo transparente. */
+.finalCta__art {
+  display: block;
+  width: 100%;
+  max-width: 760px;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* ---------- Categorias — portas de mármore no fim das Alianças ----------
+   Reaproveita literalmente .introScroll__wall (mesmo parede-wall.png,
+   mesma transição de fechar/abrir) num segundo trecho pinado, mais
+   curto, controlado por scroll em js/main.js (updateCategoryScroll).
+   Ao fechar por completo, a grade de categorias abaixo troca para
+   visível; ao reabrir, ela aparece — sem nenhum texto sobre o mármore,
+   pelo mesmo motivo de antes (fonte cinzelada de LETRA.png não é
+   reproduzível em CSS). Os "cards" reaproveitam a estrutura exata de
+   .ringCard do catálogo de Alianças, só que para as demais categorias. */
+
+.categoryScroll {
+  position: relative;
+  height: 220vh;
+}
+
+.categoryScroll__pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.categoryScroll__reveal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 3vh, 32px);
+  padding: 24px;
+  opacity: 0;
+}
+
+.categoryScroll__grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(10px, 1.6vw, 22px);
+  width: 100%;
+  max-width: 1300px;
+}
+
+.categoryScroll .ringCard__media {
+  aspect-ratio: auto;
+  height: clamp(110px, 20vh, 220px);
+}
+
+.categoryScroll .ringCard__body { padding: 16px 16px 18px; }
+.categoryScroll .ringCard__name { font-size: 17px; }
+.categoryScroll .ringCard__desc { font-size: 11.5px; margin-bottom: 14px; }
+
+.ringCard__media--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ringCard__initial {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(40px, 6vw, 64px);
+  color: var(--gold-bright);
+  opacity: .38;
+  transition: opacity .4s ease, transform .4s ease;
+}
+
+.ringCard:hover .ringCard__initial {
+  opacity: .6;
+  transform: scale(1.08);
+}
+
+@media (max-width: 1300px) {
+  .categoryScroll__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Below 720px there isn't enough viewport height to pin five full cards
+   behind closing doors without clipping — the scroll-jack + wall
+   transition is dropped in favor of a plain static grid, same pattern
+   the rest of the site already leans on for small screens. */
+@media (max-width: 720px) {
+  .categoryScroll { height: auto; }
+
+  .categoryScroll__pin {
+    position: static;
+    height: auto;
+    overflow: visible;
+    padding: 70px 20px 90px;
+  }
+
+  .categoryScroll__reveal {
+    position: static;
+    opacity: 1 !important;
+    padding: 0;
+  }
+
+  .categoryScroll__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .categoryScroll .introScroll__wall { display: none; }
+}
+
+/* ---------- Rodapé (expandido) ---------- */
+
+.footer__grid {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 40px;
+  padding-bottom: 40px;
+}
+
+.footer__brand .footer__mark { margin-bottom: 16px; }
+
+.footer__tagline {
+  margin: 0;
+  max-width: 30ch;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--text-dim);
+}
+
+.footer__heading {
+  margin: 0 0 18px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.footer__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.footer__list a {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color .25s ease;
+}
+
+.footer__list a:hover { color: var(--gold-bright); }
+
+.footer .footer__inner {
+  max-width: 1080px;
+  justify-content: center;
+  border-top: 1px solid var(--hairline);
+  padding-top: 22px;
+}
+
+@media (max-width: 900px) {
+  .footer__grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 560px) {
+  .footer__grid { grid-template-columns: 1fr; gap: 32px; text-align: left; }
+}
+
+/* ---------- Teaser dentro do pin (introScroll__reveal) ---------- */
+/* Preenche os cards que já existiam como placeholder, com as mesmas
+   fotos usadas no catálogo real logo abaixo — para que soltar o pin
+   pareça continuação do mesmo grid, não um corte para outra seção. */
+
+.productCard {
+  position: relative;
+  overflow: hidden;
+}
+
+.productCard__media {
+  position: relative;
+  overflow: hidden;
+}
+
+.productCard__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  transform: scale(1.1);
+}
+
+/* ---------- Animação de entrada (GSAP define o estado inicial via JS;
+   estas classes só existem para o motor de reveal localizar os alvos) ---------- */
+
+.js-reveal,
+.js-reveal-stagger > * { will-change: opacity, transform; }

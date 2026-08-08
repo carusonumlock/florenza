@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Florenza — Joalheria</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/aliancas.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="gemSilverGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6f7f8"/>
+      <stop offset="0.55" stop-color="#c7ccd1"/>
+      <stop offset="1" stop-color="#888e94"/>
+    </linearGradient>
+    <linearGradient id="gemGoldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f5e5bd"/>
+      <stop offset="0.55" stop-color="#cda45e"/>
+      <stop offset="1" stop-color="#8a6a37"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="nav">
+  <div class="nav__inner">
+    <nav class="nav__links">
+      <a href="#aliancas-produtos">Alianças</a>
+      <a href="#contato">Contato</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="introScroll" id="introScroll">
+    <div class="introScroll__pin">
+
+      <!-- Phase 1: ring disassembles. Stays on-screen, frozen on its last
+           frame, as the backdrop for phase 2 — never hidden or swapped,
+           so there's nothing to hand off between. -->
+      <video class="introScroll__hero-video" id="heroVideo" src="anel-scrub.mp4" muted playsinline preload="auto" aria-label="Anel de diamante da Florenza se desmontando, seguido da revelação da categoria Alianças, tudo na mesma tela conforme a página rola" role="img"></video>
+
+      <div class="introScroll__scrollcue" id="scrollCue">
+        <span>role para descobrir</span>
+        <div class="introScroll__scrollcue-line"></div>
+      </div>
+
+      <div class="introScroll__payoff" id="heroPayoff">
+        <p class="hero__tagline">Cada peça, lapidada para durar para sempre.</p>
+        <a class="hero__cta" href="#aliancas-produtos">Ver coleção</a>
+      </div>
+
+      <!-- Phase 2 + 3: a window opens (clip-path grows) over the frozen
+           hero frame, revealing — always at its true, unscaled size, so
+           there's no zoom/crop jump — the Alianças background, which then
+           keeps scrubbing through the champola sequence as the rings lift
+           off the pedestal. Same pin, same element, start to finish. -->
+      <div class="introScroll__window" id="introWindow">
+        <div class="introScroll__window-bg" aria-hidden="true"></div>
+
+        <div class="introScroll__stage">
+          <canvas class="introScroll__canvas" id="catCanvas" width="1280" height="720" aria-label="Par de alianças Florenza sobre um pedestal, flutuando conforme a página rola" role="img"></canvas>
+          <div class="watermark-patch" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <!-- Phase 5 (behind the walls): the empty product grid, revealed
+           when the walls part again later — built to exem.jpg's card
+           anatomy, with no items registered yet. -->
+      <div class="introScroll__reveal" id="introReveal">
+        <p class="introScroll__reveal-eyebrow">Alianças</p>
+        <div class="introScroll__reveal-grid">
+          <article class="productCard">
+            <div class="productCard__media productCard__media--elo" aria-hidden="true">
+              <img src="modelosalianca/3mmprata.png" alt="">
+            </div>
+            <h3 class="productCard__name">Aliança Elo</h3>
+            <p class="productCard__material">Prata 925</p>
+            <span class="productCard__price">R$ 349,00</span>
+          </article>
+          <article class="productCard">
+            <div class="productCard__media productCard__media--essence" aria-hidden="true">
+              <img src="modelosalianca/3mm.png" alt="">
+            </div>
+            <h3 class="productCard__name">Aliança Essence</h3>
+            <p class="productCard__material">Ouro 18K</p>
+            <span class="productCard__price">R$ 2.890,00</span>
+          </article>
+          <article class="productCard">
+            <div class="productCard__media productCard__media--aurea" aria-hidden="true">
+              <img src="modelosalianca/5mm.png" alt="">
+            </div>
+            <h3 class="productCard__name">Aliança Aurea</h3>
+            <p class="productCard__material">Ouro 18K + Diamantes</p>
+            <span class="productCard__price">R$ 4.690,00</span>
+          </article>
+          <article class="productCard">
+            <div class="productCard__media productCard__media--eter" aria-hidden="true">
+              <img src="modelosalianca/6mmprata.png" alt="">
+            </div>
+            <h3 class="productCard__name">Aliança Éter</h3>
+            <p class="productCard__material">Prata 925</p>
+            <span class="productCard__price">R$ 549,00</span>
+          </article>
+        </div>
+      </div>
+
+      <!-- Phase 4: once the rings settle on the pedestal (catT = 1), two
+           marble walls slide in from each edge and meet at the center,
+           closing the scene. Later, in phase 6, they slide back out the
+           same way, revealing .introScroll__reveal underneath. -->
+      <img class="introScroll__wall introScroll__wall--left" id="wallLeft" src="parede-wall.png" alt="" aria-hidden="true">
+      <img class="introScroll__wall introScroll__wall--right" id="wallRight" src="parede-wall.png" alt="" aria-hidden="true">
+
+      <!-- Phase 5: once the walls are fully closed, this fades in centered
+           over them, holds, then fades back out as phase 6 begins. -->
+      <img class="introScroll__letra" id="introLetra" src="LETRA.png" alt="Alianças de prata e ouro" aria-hidden="true">
+
+    </div>
+  </section>
+
+  <section class="catalog" id="aliancas-produtos">
+    <div class="catalog__head js-reveal">
+      <div class="catalog__heading">
+        <p class="section-eyebrow">Coleção</p>
+        <h2 class="catalog__title">Nossa Coleção</h2>
+      </div>
+      <div class="catalog__filters" role="tablist" aria-label="Filtrar alianças por material">
+        <button class="catalog__filter is-active" type="button" data-filter="all">Todas</button>
+        <button class="catalog__filter" type="button" data-filter="prata">Prata</button>
+        <button class="catalog__filter" type="button" data-filter="ouro">Ouro</button>
+        <button class="catalog__filter" type="button" data-filter="ouro-diamantes">Ouro + Diamantes</button>
+      </div>
+    </div>
+
+    <div class="catalog__grid js-reveal-stagger">
+      <article class="ringCard" data-material="prata">
+        <button class="ringCard__fav" type="button" aria-label="Favoritar Aliança Elo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+            <path d="M12 20s-7-4.35-9.5-8.5C.8 8.1 2.4 4.8 5.8 4.2c2-.35 3.7.6 4.9 2.2 1.2-1.6 2.9-2.55 4.9-2.2 3.4.6 5 3.9 3.3 7.3C19 15.65 12 20 12 20z"/>
+          </svg>
+        </button>
+        <a class="ringCard__media" href="#" aria-label="Ver Aliança Elo">
+          <img class="ringCard__img ringCard__img--elo" src="modelosalianca/3mmprata.png" alt="Aliança Elo, prata 925, 3mm, acabamento diagonal texturizado">
+        </a>
+        <div class="ringCard__body">
+          <h3 class="ringCard__name">Aliança Elo</h3>
+          <p class="ringCard__material">Prata 925 · 3mm</p>
+          <p class="ringCard__desc">Design minimalista com acabamento diagonal texturizado.</p>
+          <div class="ringCard__foot">
+            <span class="ringCard__price">R$ 349,00</span>
+            <a class="ringCard__view" href="#" aria-label="Ver detalhes da Aliança Elo">&rarr;</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="ringCard" data-material="ouro">
+        <button class="ringCard__fav" type="button" aria-label="Favoritar Aliança Essence">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+            <path d="M12 20s-7-4.35-9.5-8.5C.8 8.1 2.4 4.8 5.8 4.2c2-.35 3.7.6 4.9 2.2 1.2-1.6 2.9-2.55 4.9-2.2 3.4.6 5 3.9 3.3 7.3C19 15.65 12 20 12 20z"/>
+          </svg>
+        </button>
+        <a class="ringCard__media" href="#" aria-label="Ver Aliança Essence">
+          <img class="ringCard__img ringCard__img--essence" src="modelosalianca/3mm.png" alt="Aliança Essence, ouro 18K, 3mm, acabamento polido">
+        </a>
+        <div class="ringCard__body">
+          <h3 class="ringCard__name">Aliança Essence</h3>
+          <p class="ringCard__material">Ouro 18K · 3mm</p>
+          <p class="ringCard__desc">Acabamento polido, linhas puras e atemporais.</p>
+          <div class="ringCard__foot">
+            <span class="ringCard__price">R$ 2.890,00</span>
+            <a class="ringCard__view" href="#" aria-label="Ver detalhes da Aliança Essence">&rarr;</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="ringCard" data-material="ouro-diamantes">
+        <button class="ringCard__fav" type="button" aria-label="Favoritar Aliança Aurea">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+            <path d="M12 20s-7-4.35-9.5-8.5C.8 8.1 2.4 4.8 5.8 4.2c2-.35 3.7.6 4.9 2.2 1.2-1.6 2.9-2.55 4.9-2.2 3.4.6 5 3.9 3.3 7.3C19 15.65 12 20 12 20z"/>
+          </svg>
+        </button>
+        <a class="ringCard__media" href="#" aria-label="Ver Aliança Aurea">
+          <img class="ringCard__img ringCard__img--aurea" src="modelosalianca/5mm.png" alt="Aliança Aurea, ouro 18K, 5mm, detalhe de coração cravejado">
+        </a>
+        <div class="ringCard__body">
+          <h3 class="ringCard__name">Aliança Aurea</h3>
+          <p class="ringCard__material">Ouro 18K + Diamantes · 5mm</p>
+          <p class="ringCard__desc">Detalhe de coração cravejado, brilho que eterniza.</p>
+          <div class="ringCard__foot">
+            <span class="ringCard__price">R$ 4.690,00</span>
+            <a class="ringCard__view" href="#" aria-label="Ver detalhes da Aliança Aurea">&rarr;</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="ringCard" data-material="prata">
+        <button class="ringCard__fav" type="button" aria-label="Favoritar Aliança Éter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+            <path d="M12 20s-7-4.35-9.5-8.5C.8 8.1 2.4 4.8 5.8 4.2c2-.35 3.7.6 4.9 2.2 1.2-1.6 2.9-2.55 4.9-2.2 3.4.6 5 3.9 3.3 7.3C19 15.65 12 20 12 20z"/>
+          </svg>
+        </button>
+        <a class="ringCard__media" href="#" aria-label="Ver Aliança Éter">
+          <img class="ringCard__img ringCard__img--eter" src="modelosalianca/6mmprata.png" alt="Aliança Éter, prata 925, 6mm, friso dourado e detalhe de coração">
+        </a>
+        <div class="ringCard__body">
+          <h3 class="ringCard__name">Aliança Éter</h3>
+          <p class="ringCard__material">Prata 925 · 6mm</p>
+          <p class="ringCard__desc">Friso dourado e detalhe de coração ao centro.</p>
+          <div class="ringCard__foot">
+            <span class="ringCard__price">R$ 549,00</span>
+            <a class="ringCard__view" href="#" aria-label="Ver detalhes da Aliança Éter">&rarr;</a>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="catalog__more js-reveal">
+      <a class="btn-outline" href="#">Ver todas as alianças <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+  </section>
+
+  <section class="material" aria-label="Materiais: prata 925 e ouro 18K">
+    <div class="material__media material__media--silver js-parallax">
+      <img class="material__ring" src="cat/champola/preciso_fazer_uma_animação_ut_101.png" alt="Par de alianças de prata 925 Florenza">
+    </div>
+    <div class="material__content material__content--silver js-reveal">
+      <h3 class="material__title">Prata 925</h3>
+      <p class="material__tagline">Pureza, brilho e permanência.</p>
+      <p class="material__text">A prata 925 oferece beleza e qualidade em cada detalhe, com um brilho que atravessa o tempo.</p>
+      <ul class="material__features">
+        <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 10.5l3.8 3.8L16 6"/></svg>Acabamento sofisticado</li>
+        <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 10.5l3.8 3.8L16 6"/></svg>Alta durabilidade</li>
+        <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 10.5l3.8 3.8L16 6"/></svg>Design atemporal</li>
+      </ul>
+      <a class="material__btn material__btn--silver" href="#">Conhecer Prata 925 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+    <div class="material__content material__content--gold js-reveal">
+      <h3 class="material__title">Ouro</h3>
+      <p class="material__tagline">Um símbolo que atravessa gerações.</p>
+      <p class="material__text">O ouro 18K é sinônimo de nobreza, beleza e eternidade. Um clássico que nunca perde seu valor.</p>
+      <ul class="material__features">
+        <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 10.5l3.8 3.8L16 6"/></svg>Pureza e autenticidade</li>
+        <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 10.5l3.8 3.8L16 6"/></svg>Resistência para toda vida</li>
+        <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 10.5l3.8 3.8L16 6"/></svg>Brilho incomparável</li>
+      </ul>
+      <a class="material__btn material__btn--gold" href="#">Conhecer Ouro 18K <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+    <div class="material__media material__media--gold js-parallax">
+      <img class="material__ring" src="cat/champola/preciso_fazer_uma_animação_ut_101.png" alt="Par de alianças de ouro 18K Florenza">
+    </div>
+  </section>
+
+  <section class="finalCta">
+    <div class="finalCta__inner js-reveal">
+      <img class="finalCta__art" src="fonteesm.png" alt="Símbolos de amor. Marcas para sempre. Role para descobrir outras peças da coleção.">
+    </div>
+  </section>
+
+  <!-- Ao fim das Alianças, as mesmas portas de mármore da abertura se
+       fecham sobre a tela e reabrem revelando a grade de categorias —
+       reaproveita a estrutura de .ringCard, só que para as demais
+       peças da Florenza em vez de produtos de aliança. -->
+  <section class="categoryScroll" id="categoryScroll">
+    <div class="categoryScroll__pin">
+      <div class="categoryScroll__reveal" id="categoryReveal">
+        <p class="section-eyebrow">Florenza</p>
+        <div class="categoryScroll__grid">
+          <article class="ringCard">
+            <a class="ringCard__media ringCard__media--placeholder" href="#" aria-label="Ver Relógios">
+              <span class="ringCard__initial">R</span>
+            </a>
+            <div class="ringCard__body">
+              <h3 class="ringCard__name">Relógios</h3>
+              <p class="ringCard__material">Próxima coleção</p>
+              <p class="ringCard__desc">Precisão e elegância no pulso.</p>
+              <div class="ringCard__foot">
+                <span class="ringCard__price">Em breve</span>
+                <a class="ringCard__view" href="#" aria-label="Ver categoria Relógios">&rarr;</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="ringCard">
+            <a class="ringCard__media ringCard__media--placeholder" href="#" aria-label="Ver Cordões">
+              <span class="ringCard__initial">C</span>
+            </a>
+            <div class="ringCard__body">
+              <h3 class="ringCard__name">Cordões</h3>
+              <p class="ringCard__material">Próxima coleção</p>
+              <p class="ringCard__desc">Peças que acompanham cada dia.</p>
+              <div class="ringCard__foot">
+                <span class="ringCard__price">Em breve</span>
+                <a class="ringCard__view" href="#" aria-label="Ver categoria Cordões">&rarr;</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="ringCard">
+            <a class="ringCard__media ringCard__media--placeholder" href="#" aria-label="Ver Pingentes">
+              <span class="ringCard__initial">P</span>
+            </a>
+            <div class="ringCard__body">
+              <h3 class="ringCard__name">Pingentes</h3>
+              <p class="ringCard__material">Próxima coleção</p>
+              <p class="ringCard__desc">Detalhes que contam histórias.</p>
+              <div class="ringCard__foot">
+                <span class="ringCard__price">Em breve</span>
+                <a class="ringCard__view" href="#" aria-label="Ver categoria Pingentes">&rarr;</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="ringCard">
+            <a class="ringCard__media ringCard__media--placeholder" href="#aliancas-produtos" aria-label="Ver Anéis">
+              <span class="ringCard__initial">A</span>
+            </a>
+            <div class="ringCard__body">
+              <h3 class="ringCard__name">Anéis</h3>
+              <p class="ringCard__material">Próxima coleção</p>
+              <p class="ringCard__desc">Além das alianças, para todos os momentos.</p>
+              <div class="ringCard__foot">
+                <span class="ringCard__price">Em breve</span>
+                <a class="ringCard__view" href="#aliancas-produtos" aria-label="Ver categoria Anéis">&rarr;</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="ringCard">
+            <a class="ringCard__media ringCard__media--placeholder" href="#" aria-label="Ver Anéis Solitários">
+              <span class="ringCard__initial">S</span>
+            </a>
+            <div class="ringCard__body">
+              <h3 class="ringCard__name">Anéis Solitários</h3>
+              <p class="ringCard__material">Próxima coleção</p>
+              <p class="ringCard__desc">O brilho de um único diamante.</p>
+              <div class="ringCard__foot">
+                <span class="ringCard__price">Em breve</span>
+                <a class="ringCard__view" href="#" aria-label="Ver categoria Anéis Solitários">&rarr;</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <img class="introScroll__wall introScroll__wall--left" id="catWallLeft" src="parede-wall.png" alt="" aria-hidden="true">
+      <img class="introScroll__wall introScroll__wall--right" id="catWallRight" src="parede-wall.png" alt="" aria-hidden="true">
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer" id="contato">
+  <div class="footer__grid">
+    <div class="footer__brand">
+      <span class="footer__mark">
+        <svg class="footer__gem" viewBox="0 0 64 78" aria-hidden="true">
+          <path d="M20,8 L44,8 L58,27 L32,73 L6,27 Z" fill="url(#gemSilverGrad)" stroke="#7d8388" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+          <path d="M6,27 L58,27 M20,8 L32,73 M44,8 L32,73" fill="none" stroke="#7d8388" stroke-width="1" vector-effect="non-scaling-stroke" opacity="0.8"/>
+        </svg>
+        <span class="footer__word">Florenza</span>
+      </span>
+      <p class="footer__tagline">Joias que eternizam histórias e celebram o que realmente importa.</p>
+    </div>
+    <div class="footer__col">
+      <h4 class="footer__heading">Coleções</h4>
+      <ul class="footer__list">
+        <li><a href="#">Anéis</a></li>
+        <li><a href="#aliancas-produtos">Alianças</a></li>
+        <li><a href="#">Colares</a></li>
+        <li><a href="#">Pulseiras</a></li>
+        <li><a href="#">Brincos</a></li>
+      </ul>
+    </div>
+    <div class="footer__col">
+      <h4 class="footer__heading">Informações</h4>
+      <ul class="footer__list">
+        <li><a href="#">Sobre</a></li>
+        <li><a href="#">Materiais</a></li>
+        <li><a href="#">Garantia</a></li>
+        <li><a href="#">Entrega</a></li>
+        <li><a href="#">Trocas e devoluções</a></li>
+      </ul>
+    </div>
+    <div class="footer__col">
+      <h4 class="footer__heading">Atendimento</h4>
+      <ul class="footer__list">
+        <li><a href="#">WhatsApp</a></li>
+        <li><a href="#">E-mail</a></li>
+        <li><a href="#">Perguntas frequentes</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer__inner">
+    <p>&copy; 2026 Florenza Joalheria. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+<script src="js/bundle.js"></script>
+</body>
+</html>
