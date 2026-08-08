@@ -21,6 +21,9 @@ const catWallLeft = document.getElementById("catWallLeft");
 const catWallRight = document.getElementById("catWallRight");
 const categoryReveal = document.getElementById("categoryReveal");
 
+const finalCta = document.getElementById("finalCta");
+const finalCtaCanvas = document.getElementById("finalCtaCanvas");
+
 function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 function smoothstep(edge0, edge1, x) {
   const t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
@@ -167,6 +170,74 @@ function update() {
   introReveal.style.opacity = progress >= PHASE4_END ? 1 : 0;
 }
 
+// ---------- Encerramento: sequência símbolos, pinada e scrubada ----------
+// Mesmo truque do canvas de champola (phase 3 acima): 300 PNGs
+// pré-renderizados (prototipo/simbolos-frames, ex-nova/simbolos.png)
+// desenhados num canvas conforme o progresso do scroll dentro do seu
+// próprio pin — em vez de tocar como vídeo/gif, o frame exibido é
+// travado 1:1 na posição de rolagem. Terminar de rolar os 300 frames não
+// precisa de nenhum "hand off" especial para as portas de mármore: a
+// seção .categoryScroll já é a próxima do documento, então seu próprio
+// pin começa a fechar assim que este termina.
+const SIMBOLOS_FRAME_COUNT = 300;
+const SIMBOLOS_FRAME_DIR = "simbolos-frames/";
+// The source loop holds on the fully-formed lockup across frame 300 and
+// frame 1 (they're ~identical — that's the seam where the gif wraps),
+// then frame 2 is where it actually cuts back to bare velvet and starts
+// sparkling the text back in. Starting the scrub at frame 2 instead of 1
+// means entering the section shows the empty state, not a jump-cut from
+// "already complete" — the build happens once, ending on the frame 300
+// hold right as the marble doors take over.
+const SIMBOLOS_FRAME_START = 2;
+const simbolosFrames = [];
+
+function simbolosFrameUrl(i) {
+  // .jpg, not .png: the source frames have no alpha channel, and at
+  // 1280x720 the lossless PNGs ran ~192MB for all 300 — re-encoded as
+  // quality-82 JPEG they're ~29MB with no visible difference on this kind
+  // of soft velvet/sparkle footage.
+  return SIMBOLOS_FRAME_DIR + `ezgif-frame-${String(i).padStart(3, "0")}.jpg`;
+}
+
+for (let i = 1; i <= SIMBOLOS_FRAME_COUNT; i++) {
+  const img = new Image();
+  img.decoding = "async";
+  // Same reasoning as catFrames: redraw once this frame lands in case the
+  // user is sitting still on it while it was still loading.
+  img.onload = () => updateFinalCta();
+  img.src = simbolosFrameUrl(i);
+  simbolosFrames.push(img);
+}
+
+const finalCtaCtx = finalCtaCanvas.getContext("2d");
+function drawSimbolosFrame(progress) {
+  const idx = clamp(
+    Math.round(SIMBOLOS_FRAME_START + progress * (SIMBOLOS_FRAME_COUNT - SIMBOLOS_FRAME_START)),
+    SIMBOLOS_FRAME_START,
+    SIMBOLOS_FRAME_COUNT
+  );
+  const img = simbolosFrames[idx - 1];
+  if (img.complete && img.naturalWidth) {
+    finalCtaCtx.clearRect(0, 0, finalCtaCanvas.width, finalCtaCanvas.height);
+    finalCtaCtx.drawImage(img, 0, 0, finalCtaCanvas.width, finalCtaCanvas.height);
+  }
+}
+
+function updateFinalCta() {
+  const rect = finalCta.getBoundingClientRect();
+  const scrollable = rect.height - window.innerHeight;
+  // Below 720px the pin is dropped for a plain static block (see
+  // aliancas.css) — nothing left to scrub, so just hold on the finished
+  // frame instead of leaving the canvas blank.
+  if (scrollable <= 0) {
+    drawSimbolosFrame(1);
+    return;
+  }
+
+  const progress = clamp(-rect.top / scrollable, 0, 1);
+  drawSimbolosFrame(progress);
+}
+
 // ---------- Categorias: portas de mármore no fim das Alianças ----------
 // Segundo trecho pinado, independente do primeiro, com a mesma lógica de
 // fechar/aguardar/reabrir — só que sem vídeo/canvas, e revelando a grade
@@ -209,10 +280,12 @@ function onScroll() {
   requestAnimationFrame(() => {
     ticking = false;
     update();
+    updateFinalCta();
     updateCategoryScroll();
   });
 }
 
 window.addEventListener("scroll", onScroll, { passive: true });
 update();
+updateFinalCta();
 updateCategoryScroll();

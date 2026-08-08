@@ -479,15 +479,35 @@
 
 /* ---------- Encerramento ---------- */
 
+/* Mesmo padrão de pin do .introScroll / .categoryScroll: um trecho alto
+   (altura em vh) mantém a seção grudada na tela (.finalCta__pin, sticky)
+   enquanto o progresso do scroll dentro dele escolhe qual frame da
+   sequência prototipo/simbolos-frames (300 PNGs, ex-nova/simbolos.png)
+   é desenhado no canvas — ver updateFinalCta em js/main.js. Ao terminar
+   de rolar os 300 frames, a seção seguinte (.categoryScroll) já começa
+   seu próprio pin de portas de mármore fechando, sem handoff especial:
+   é só a próxima seção do documento. */
 .finalCta {
   position: relative;
-  background: var(--bg);
-  padding: clamp(110px, 16vw, 190px) 32px;
-  text-align: center;
-  overflow: hidden;
+  height: 500vh;
 }
 
-.finalCta::before {
+.finalCta__pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 32px;
+  /* Same backdrop as .introScroll__pin — shows in the letterboxed strip
+     around the canvas, since the frame sequence itself caps at 900px
+     while the pin spans the full viewport width. */
+  background: #040704 url("../background.png") center center / cover no-repeat;
+}
+
+.finalCta__pin::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -495,26 +515,26 @@
   pointer-events: none;
 }
 
-.finalCta__inner { position: relative; }
-
-.finalCta__subtitle {
-  margin: 0 0 44px;
-  font-family: var(--font-sans);
-  font-size: 12px;
-  letter-spacing: .26em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-
-/* nova/fonteesm.png — mesmo texto de encerramento ("Símbolos de amor.
-   Marcas para sempre." + a chamada para rolar), já cravejado em
-   esmeralda/dourado, recortado com fundo transparente. */
-.finalCta__art {
+.finalCta__canvas {
+  position: relative;
   display: block;
   width: 100%;
-  max-width: 760px;
+  max-width: 900px;
   height: auto;
-  margin: 0 auto;
+  aspect-ratio: 1280 / 720;
+}
+
+/* Abaixo de 720px não sobra altura de viewport para pinar um scroll de
+   500vh de forma confortável — mesma saída já usada pelo .categoryScroll:
+   solta o pin e mostra só o frame final (completo) parado, sem scrub. */
+@media (max-width: 720px) {
+  .finalCta { height: auto; }
+
+  .finalCta__pin {
+    position: static;
+    height: auto;
+    padding: 90px 20px;
+  }
 }
 
 /* ---------- Categorias — portas de mármore no fim das Alianças ----------
