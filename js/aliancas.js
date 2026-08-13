@@ -37,6 +37,36 @@ filterButtons.forEach((btn) => {
   });
 });
 
+// ---------- Categorias: carrossel horizontal (uma por vez, scroll-snap) ----------
+const categoryTrack = document.getElementById("categoryTrack");
+
+if (categoryTrack) {
+  const categoryItems = categoryTrack.children;
+  const prevArrow = document.querySelector(".categoryShowcase__arrow--prev");
+  const nextArrow = document.querySelector(".categoryShowcase__arrow--next");
+  const categoryDots = document.querySelectorAll(".categoryShowcase__dot");
+
+  const currentIndex = () => Math.round(categoryTrack.scrollLeft / categoryTrack.clientWidth);
+
+  const goToIndex = (index) => {
+    const clamped = Math.max(0, Math.min(categoryItems.length - 1, index));
+    categoryItems[clamped].scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  };
+
+  if (prevArrow) prevArrow.addEventListener("click", () => goToIndex(currentIndex() - 1));
+  if (nextArrow) nextArrow.addEventListener("click", () => goToIndex(currentIndex() + 1));
+  categoryDots.forEach((dot, i) => dot.addEventListener("click", () => goToIndex(i)));
+
+  let scrollSettle;
+  categoryTrack.addEventListener("scroll", () => {
+    window.clearTimeout(scrollSettle);
+    scrollSettle = window.setTimeout(() => {
+      const active = currentIndex();
+      categoryDots.forEach((dot, i) => dot.classList.toggle("is-active", i === active));
+    }, 100);
+  });
+}
+
 // ---------- Reveals scroll-driven (cinematográficos, sem bounce/elastic) ----------
 if (!prefersReducedMotion) {
   gsap.utils.toArray(".js-reveal").forEach((el) => {
