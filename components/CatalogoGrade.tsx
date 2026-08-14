@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RingCard } from "@/components/RingCard";
 import { tagDoProduto, textoDaContagem, type Categoria, type Produto } from "@/lib/catalogo";
 
@@ -22,29 +22,41 @@ export function CatalogoGrade({ categoria, produtos }: { categoria: Categoria; p
   const [escondidos, setEscondidos] = useState<Set<string>>(new Set());
   const [colapsados, setColapsados] = useState<Set<string>>(new Set());
 
-  const casa = (produto: Produto) =>
-    filtro === "all" || tagDoProduto(produto, categoria.filtroCampo) === filtro;
+  const casa = (produto: Produto, valor = filtro) =>
+    valor === "all" || tagDoProduto(produto, categoria.filtroCampo) === valor;
 
-  useEffect(() => {
+  // A coreografia roda no clique, e não num efeito. Filtro só muda por clique,
+  // e sequenciar dentro do próprio manipulador evita a renderização em cascata
+  // que setState dentro de efeito provoca.
+  const quadro = useRef(0);
+  const relogio = useRef(0);
+
+  function aplicarFiltro(valor: string) {
+    cancelAnimationFrame(quadro.current);
+    window.clearTimeout(relogio.current);
+
+    setFiltro(valor);
+
     const alvo = new Set(
-      produtos
-        .filter((produto) => !(filtro === "all" || tagDoProduto(produto, categoria.filtroCampo) === filtro))
-        .map((produto) => produto.sku)
+      produtos.filter((produto) => !casa(produto, valor)).map((produto) => produto.sku)
     );
 
-    // Quem volta a aparecer sai do colapso já neste commit.
+    // Quem volta a aparecer sai do colapso já neste commit; só no quadro
+    // seguinte a classe sai, senão a transição de entrada não dispara.
     setColapsados((anterior) => new Set([...anterior].filter((sku) => alvo.has(sku))));
+    quadro.current = requestAnimationFrame(() => setEscondidos(alvo));
+    relogio.current = window.setTimeout(() => setColapsados(alvo), DURACAO_SAIDA);
+  }
 
-    const quadro = requestAnimationFrame(() => setEscondidos(alvo));
-    const relogio = window.setTimeout(() => setColapsados(alvo), DURACAO_SAIDA);
+  useEffect(
+    () => () => {
+      cancelAnimationFrame(quadro.current);
+      window.clearTimeout(relogio.current);
+    },
+    []
+  );
 
-    return () => {
-      cancelAnimationFrame(quadro);
-      window.clearTimeout(relogio);
-    };
-  }, [filtro, produtos, categoria.filtroCampo]);
-
-  const visiveis = produtos.filter(casa).length;
+  const visiveis = produtos.filter((produto) => casa(produto)).length;
 
   // Só entram as opções que existem no acervo — um botão "Verde" sem nenhuma
   // esmeralda no estoque leva a uma grade vazia. Abaixo de duas, a barra some.
@@ -67,7 +79,7 @@ export function CatalogoGrade({ categoria, produtos }: { categoria: Categoria; p
           <button
             className={`catalog__filter${filtro === "all" ? " is-active" : ""}`}
             type="button"
-            onClick={() => setFiltro("all")}
+            onClick={() => aplicarFiltro("all")}
           >
             Todas
           </button>
@@ -76,7 +88,7 @@ export function CatalogoGrade({ categoria, produtos }: { categoria: Categoria; p
               key={opcao.slug}
               className={`catalog__filter catalog__filter--cor${filtro === opcao.slug ? " is-active" : ""}`}
               type="button"
-              onClick={() => setFiltro(opcao.slug)}
+              onClick={() => aplicarFiltro(opcao.slug)}
             >
               <span
                 className="catalog__swatch"

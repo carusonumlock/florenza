@@ -1,18 +1,13 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import coreWebVitals from "eslint-config-next/core-web-vitals";
+import typescript from "eslint-config-next/typescript";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({ baseDirectory: __dirname });
-
+/* O eslint-config-next 16 já exporta config plano. Usar o FlatCompat aqui, como
+ * o template antigo fazia, quebra com "Converting circular structure to JSON". */
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...coreWebVitals,
+  ...typescript,
   {
-    // O site antigo (HTML estático + bundle IIFE) segue no repositório até a
-    // migração ser conferida lado a lado. Não faz sentido lintar aquele código.
-    ignores: ["js/**", "tools/**", ".next/**"],
+    ignores: [".next/**", "tools/**", "public/**"],
   },
 ];
 

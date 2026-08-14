@@ -29,6 +29,9 @@
 .adm :where(button) { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
 .adm :where(input, select, textarea) { font: inherit; color: inherit; }
 .adm :where(table) { border-collapse: collapse; }
+/* Sem o preflight do Tailwind, o sublinhado padrão do navegador aparece nos
+   links — inclusive nas abas, que são <Link>. */
+.adm :where(a) { text-decoration: none; }
 
 .adm {
   font-family: var(--font-sans);

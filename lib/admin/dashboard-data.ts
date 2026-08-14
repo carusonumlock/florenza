@@ -14,7 +14,7 @@ import { supabaseConfigurado } from "@/lib/supabase/config";
 import { produtos as produtosLocais } from "@/lib/data/catalogo-local";
 import { PEDIDOS_DEMO, CLIENTES_DEMO, type PedidoDemo } from "@/lib/admin/dados-demo";
 import { COR_ORIGEM, ORDEM_ORIGEM, ROTULO_ORIGEM } from "@/lib/admin/format";
-import { REGIOES, UFS, buscarUF } from "@/lib/geo/ufs";
+import { REGIOES, UFS } from "@/lib/geo/ufs";
 
 /** Status que contam como venda — mesma regra de vw_pedidos_confirmados. */
 const CONFIRMADOS = new Set(["pago", "em_producao", "enviado", "entregue"]);

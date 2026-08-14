@@ -73,7 +73,6 @@ export function HeroMedia() {
           39 KB. O desktop segue com o PNG original. */}
       <picture>
         <source media="(max-width: 860px)" srcSet="/herome-mobile.jpg" />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="hero__img"
           src="/herome.png"

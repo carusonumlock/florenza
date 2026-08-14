@@ -90,7 +90,7 @@ export const categorias: Categoria[] = [
     variante: "produto",
     rotuloFiltro: "Filtrar por cor da pedra",
     nota: [
-      "Protótipo de vitrine — o botão “Comprar” ainda não está ligado a um carrinho ou checkout, e “Ver detalhes” ainda não tem página de produto.",
+      "O pagamento ainda é combinado por WhatsApp: o pedido feito aqui chega para a Florenza e a forma de pagar é acertada em seguida.",
       "Todas as peças são ouro 18K (750); o filtro é pela cor da pedra, que é o que identifica o curso na tradição do anel de formatura.",
     ],
     opcoes: CORES_DE_PEDRA,
@@ -108,7 +108,7 @@ export const categorias: Categoria[] = [
     filtroCampo: null,
     variante: "foto",
     rotuloFiltro: "Filtrar por material",
-    nota: ["Protótipo de vitrine — o botão “Comprar” ainda não está ligado a um carrinho ou checkout."],
+    nota: ["O pagamento ainda é combinado por WhatsApp: o pedido feito aqui chega para a Florenza e a forma de pagar é acertada em seguida."],
     opcoes: [
       { slug: "ouro", nome: "Ouro 18K", amostra: "#b3854e" },
       { slug: "ouro-diamantes", nome: "Ouro + Diamantes", amostra: "#e3c692" },
@@ -123,7 +123,7 @@ export const categorias: Categoria[] = [
     filtroCampo: null,
     variante: "foto",
     rotuloFiltro: "Filtrar por material",
-    nota: ["Protótipo de vitrine — o botão “Comprar” ainda não está ligado a um carrinho ou checkout."],
+    nota: ["O pagamento ainda é combinado por WhatsApp: o pedido feito aqui chega para a Florenza e a forma de pagar é acertada em seguida."],
     opcoes: [{ slug: "prata", nome: "Prata 925", amostra: "#cfd3d6" }],
   },
 ];

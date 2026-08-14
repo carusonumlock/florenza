@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { BotaoComprar } from "@/components/BotaoComprar";
 import {
   formatarPreco,
   linhaDoMaterial,
@@ -22,12 +24,6 @@ import {
 const CoracaoFav = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
     <path d="M12 20s-7-4.35-9.5-8.5C.8 8.1 2.4 4.8 5.8 4.2c2-.35 3.7.6 4.9 2.2 1.2-1.6 2.9-2.55 4.9-2.2 3.4.6 5 3.9 3.3 7.3C19 15.65 12 20 12 20z" />
-  </svg>
-);
-
-const Sacola = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6zM3 6h18M16 10a4 4 0 0 1-8 0" />
   </svg>
 );
 
@@ -69,9 +65,9 @@ export function RingCard({
         <CoracaoFav />
       </button>
 
-      <a
+      <Link
         className={`ringCard__media${ehProduto ? " ringCard__media--produto" : ""}`}
-        href="#"
+        href={`/produto/${produto.slug}`}
         aria-label={`Ver ${produto.nome}`}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -84,7 +80,7 @@ export function RingCard({
           loading="lazy"
           decoding="async"
         />
-      </a>
+      </Link>
 
       <div className="ringCard__body">
         <h3 className="ringCard__name">{produto.nome}</h3>
@@ -99,14 +95,23 @@ export function RingCard({
         )}
         <div className="ringCard__foot">
           <span className="ringCard__price">{formatarPreco(produto.precoCentavos)}</span>
-          <a className="ringCard__view" href="#" aria-label={`Ver detalhes de ${produto.nome}`}>
+          <Link
+            className="ringCard__view"
+            href={`/produto/${produto.slug}`}
+            aria-label={`Ver detalhes de ${produto.nome}`}
+          >
             &rarr;
-          </a>
+          </Link>
         </div>
-        <a className="ringCard__buy" href="#" aria-label={`Comprar ${produto.nome}`}>
-          <Sacola />
-          Comprar
-        </a>
+        <BotaoComprar
+          produto={{
+            sku: produto.sku,
+            slug: produto.slug,
+            nome: produto.nome,
+            precoCentavos: produto.precoCentavos,
+            imagemUrl: produto.imagemUrl,
+          }}
+        />
       </div>
     </article>
   );
