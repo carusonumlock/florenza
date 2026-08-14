@@ -53,6 +53,13 @@ export function ContaFormulario({ redirect, demo }: { redirect: string; demo: bo
       email,
       password: senha,
       options: {
+        // Sem isto o Supabase manda o link de confirmação para a "Site URL"
+        // configurada no projeto — uma só, fixa. Quem se cadastrasse no site
+        // publicado receberia um link apontando para localhost, que não abre.
+        // `window.location.origin` devolve a pessoa para o mesmo endereço onde
+        // ela se cadastrou, seja ele qual for. É o mesmo caminho que a
+        // recuperação de senha já usava aqui embaixo.
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/conta`,
         data: {
           nome: String(dados.get("nome") ?? "").trim(),
           telefone: String(dados.get("telefone") ?? "").trim(),
