@@ -62,61 +62,23 @@
     </a>
   </section>
 
+  <!-- A grade abaixo é montada por js/catalogo.js a partir de
+       js/data/aneis-formatura.js — cada foto de aneisFormatura/ virou uma
+       ficha, com o código do arquivo como SKU e o preço do nome do arquivo.
+       Aqui ficam só os pontos de encaixe. -->
   <section class="catalog categoryPage__catalog" aria-label="Anéis de formatura disponíveis">
-    <p class="categoryPage__count">2 peças nesta categoria</p>
+    <p class="categoryPage__count" data-catalogo-contagem>Carregando peças…</p>
 
-    <div class="catalog__grid js-reveal-stagger">
-      <article class="ringCard" data-material="ouro">
-        <button class="ringCard__fav" type="button" aria-label="Favoritar Anel Láurea">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-            <path d="M12 20s-7-4.35-9.5-8.5C.8 8.1 2.4 4.8 5.8 4.2c2-.35 3.7.6 4.9 2.2 1.2-1.6 2.9-2.55 4.9-2.2 3.4.6 5 3.9 3.3 7.3C19 15.65 12 20 12 20z"/>
-          </svg>
-        </button>
-        <a class="ringCard__media" href="#" aria-label="Ver Anel Láurea">
-          <img class="ringCard__img" src="categorias/anelformatura.png" alt="Anel Láurea, ouro 18K, com pedra central">
-        </a>
-        <div class="ringCard__body">
-          <h3 class="ringCard__name">Anel Láurea</h3>
-          <p class="ringCard__material">Ouro 18K · Pedra central</p>
-          <p class="ringCard__desc">Pedra da cor do seu curso, cravada em ouro, com laterais gravadas sob encomenda.</p>
-          <div class="ringCard__foot">
-            <span class="ringCard__price">R$ 1.980,00</span>
-            <a class="ringCard__view" href="#" aria-label="Ver detalhes do Anel Láurea">&rarr;</a>
-          </div>
-          <a class="ringCard__buy" href="#" aria-label="Comprar Anel Láurea">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6zM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
-            Comprar
-          </a>
-        </div>
-      </article>
+    <div class="catalog__filters categoryPage__filters" data-catalogo-filtros role="group" aria-label="Filtrar por cor da pedra"></div>
 
-      <article class="ringCard" data-material="prata">
-        <button class="ringCard__fav" type="button" aria-label="Favoritar Anel Conquista">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-            <path d="M12 20s-7-4.35-9.5-8.5C.8 8.1 2.4 4.8 5.8 4.2c2-.35 3.7.6 4.9 2.2 1.2-1.6 2.9-2.55 4.9-2.2 3.4.6 5 3.9 3.3 7.3C19 15.65 12 20 12 20z"/>
-          </svg>
-        </button>
-        <a class="ringCard__media" href="#" aria-label="Ver Anel Conquista">
-          <img class="ringCard__img" src="categorias/anelformatura.png" alt="Anel Conquista, prata 925, com pedra central">
-        </a>
-        <div class="ringCard__body">
-          <h3 class="ringCard__name">Anel Conquista</h3>
-          <p class="ringCard__material">Prata 925 · Pedra central</p>
-          <p class="ringCard__desc">A mesma marca de uma jornada, em prata — com gravação interna de data e nome.</p>
-          <div class="ringCard__foot">
-            <span class="ringCard__price">R$ 690,00</span>
-            <a class="ringCard__view" href="#" aria-label="Ver detalhes do Anel Conquista">&rarr;</a>
-          </div>
-          <a class="ringCard__buy" href="#" aria-label="Comprar Anel Conquista">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6zM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
-            Comprar
-          </a>
-        </div>
-      </article>
+    <div class="catalog__grid" data-catalogo="aneis-formatura">
+      <noscript>
+        <p class="categoryPage__empty">Ative o JavaScript para ver as peças desta categoria.</p>
+      </noscript>
     </div>
 
-    <p class="categoryPage__note">Protótipo de vitrine — o botão “Comprar” ainda não está ligado a um carrinho ou checkout.<br>
-    Estas duas peças são itens de demonstração: o acervo original não tinha produtos de formatura, e as duas usam a mesma foto de categoria como imagem provisória.</p>
+    <p class="categoryPage__note">Protótipo de vitrine — o botão “Comprar” ainda não está ligado a um carrinho ou checkout, e “Ver detalhes” ainda não tem página de produto.<br>
+    Todas as peças são ouro 18K (750); o filtro é pela cor da pedra, que é o que identifica o curso na tradição do anel de formatura.</p>
   </section>
 
 </main>

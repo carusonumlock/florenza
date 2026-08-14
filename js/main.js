@@ -10,6 +10,9 @@
 // GSAP fade/parallax reveals, both defined in aliancas.js.
 
 import "./aliancas.js";
+// Monta a grade das páginas de categoria a partir de js/data/. Só age onde
+// existe um [data-catalogo] no HTML — hoje, aneis-formatura.html.
+import "./catalogo.js";
 
 // ---------- Hero: alterna foto/vídeo ----------
 // 2s após abrir o site, troca a foto (herome.png) pelo vídeo
