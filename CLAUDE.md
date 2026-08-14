@@ -1,125 +1,148 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guia para o Claude Code (claude.ai/code) trabalhar neste repositório.
 
-Site da Florenza Joalheria: HTML/CSS/JS estáticos, sem framework e sem backend.
-Código, comentários e interface são em português do Brasil — mantenha o idioma ao
-escrever qualquer coisa nova.
+Site da **Florenza Joalheria**: vitrine, conta do cliente e painel administrativo.
+Next.js 16 (App Router) + Supabase + Vercel. Código, comentários e interface em
+português do Brasil — mantenha o idioma ao escrever qualquer coisa nova.
 
 ## Comandos
 
 ```bash
-npm install                              # primeira vez (só esbuild + gsap)
-npm run build                            # js/main.js -> js/bundle.js (IIFE minificado)
-npm run watch                            # o mesmo, em modo watch, sem minify
+npm install
+npm run dev              # localhost:3000
+npm run build            # build de produção — roda a checagem de tipos
+npm run lint
 
-python tools/importar-aneis-formatura.py # fotos originais -> WebP em produtos/
+npm run seed             # gera supabase/seed-catalogo.sql das fichas locais
+npm run mapa             # regera lib/geo/brasil-uf.ts da malha do IBGE (roda uma vez)
+
+python tools/importar-aneis-formatura.py   # fotos originais -> WebP em public/produtos/
 ```
 
-Não há testes, linter nem formatter configurados.
+Não há testes nem formatter configurados. **A verificação de verdade antes de
+qualquer commit é `npm run build`** — é ela que roda o TypeScript.
 
-**`js/bundle.js` é versionado e é o que as páginas carregam.** Toda alteração em
-`js/main.js`, `js/aliancas.js`, `js/catalogo.js` ou `js/data/` só aparece no site
-depois de `npm run build`. Esquecer isso é a forma mais fácil de "consertar" algo
-e não ver diferença nenhuma no navegador.
+## Regra que molda tudo: a estética pronta não se mexe
 
-Para ver o site rodando: abrir o HTML direto no navegador funciona (ver restrição
-abaixo), ou `python -m http.server 8765` se precisar de um servidor.
+O visual do site é trabalho concluído e não está em discussão. Toda mudança é
+**aditiva**.
 
-## Restrição que molda a arquitetura: o site tem que abrir por `file://`
+- **`app/estilos/` é intocável.** `style.css`, `aliancas.css`, `categoria.css` e
+  `rings-3d.css` vieram do protótipo sem uma linha alterada e continuam sendo a
+  fonte da identidade visual. Os dois `:root` com os tokens (cores e `--nav-h` em
+  `style.css`; fontes e linhas em `aliancas.css`) ficam onde estão.
+- **A cascata é aditiva:** `style` → `aliancas` → `categoria`. Cada camada só
+  soma; nenhuma redefine regra da anterior. `layout.tsx` importa as duas
+  primeiras; a página de categoria importa a terceira; a home importa
+  `rings-3d.css`.
+- **O Tailwind entra sem preflight**, de propósito (ver `app/globals.css`). O
+  reset dele desmontaria o site. E, por estar em `@layer utilities`, ele **perde
+  de qualquer regra** dos CSS acima, que são CSS comum sem camada. Isso é a
+  garantia, não um efeito colateral: as utilities existem para as telas novas e
+  não alcançam a vitrine nem por acidente.
+- Telas novas (`/admin`, `/conta`) têm CSS próprio — `app/admin/admin.css`,
+  `app/conta/conta.css` — usando **as variáveis que já existem**. Nenhuma cor
+  nova entra no projeto.
+- No CSS dessas telas, o reset escopado usa `:where()` para ter especificidade
+  zero. Sem isso `.adm button` venceria `.adm-botao` e o botão perde o fundo —
+  já aconteceu uma vez.
 
-O protótipo é entregue como pasta, sem servidor. Por isso:
-
-- o bundle é **IIFE**, não `type="module"` — `file://` bloqueia módulos ESM;
-- **nada de `fetch()` em arquivo local**. Dados de produto vivem em módulos JS
-  embutidos no bundle, não em `.json` carregado em runtime;
-- caminhos de imagem/vídeo são sempre relativos.
-
-A exceção é `js/rings-3d.js`, que é ESM e depende de CDN — a seção 3D não funciona
-por `file://`, e isso é conhecido/aceito.
-
-## Dois mundos de JavaScript, independentes
-
-**1. Bundle (todas as páginas).** `js/main.js` é o único ponto de entrada do
-esbuild. Ele importa `aliancas.js` (filtro do catálogo, carrossel de categorias,
-reveals GSAP, `IntersectionObserver` que dá play/pause nos vídeos) e `catalogo.js`.
-Todos os scripts do bundle checam se o elemento existe antes de agir, porque o
-mesmo `bundle.js` é carregado pelas quatro páginas.
-
-**2. Cena 3D (só `index.html`).** `js/rings-3d.js` é `<script type="module">`
-carregado direto, com **importmap apontando o Three.js para a CDN** — `three` não
-é dependência do `package.json` e não passa pelo esbuild. `js/rings-3d-selector.js`
-é um terceiro script, plain e `defer`, que de propósito não conhece a cena: ele só
-liga/desliga classes de estado na `<section>`, e o efeito visual é resolvido em
-`css/rings-3d.css` via `:has`. Mantenha essa separação.
+Bugs visuais conhecidos (o nav sobreposto em ~390px) só se corrigem com
+aprovação explícita: consertar é mudar estética.
 
 ## Catálogo dirigido a dados
 
-Fluxo: `js/data/<categoria>.js` → `listarProdutos()` → `js/catalogo.js` → grade.
+Fluxo: `lib/data/catalogo-local.ts` → `lib/catalogo.ts` → páginas.
 
-O HTML da página de categoria declara só pontos de encaixe, e `catalogo.js` monta
-os `<article class="ringCard">`:
+**`lib/catalogo.ts` é a fronteira.** As páginas não sabem de onde os produtos
+vêm. Hoje vêm de um módulo local; quando o Supabase estiver plugado, só o corpo
+dessas funções muda — a consulta equivalente já está escrita em comentário no
+topo do arquivo.
 
-```html
-<p data-catalogo-contagem></p>
-<div data-catalogo-filtros></div>
-<div class="catalog__grid" data-catalogo="aneis-formatura"></div>
-```
+Regras do dado, todas duras:
+- **Preço sempre em centavos inteiros** (`precoCentavos: 317900`), nunca float.
+  Formatação só na exibição. Vale igual na coluna do banco (`integer`).
+- **O SKU é chave de negócio**, não detalhe visual: vem do nome do arquivo da
+  foto original (`3187_R$2420.png` → `3187`) e é por ele que a peça é encontrada
+  na gaveta.
+- Duas formas de produto convivem: anel de formatura tem pedra/cor/lapidação;
+  aliança tem largura em mm. São colunas nulas tipadas, não `jsonb` — precisam
+  ser filtráveis e conferíveis pelo banco.
 
-`listarProdutos()` **devolve uma Promise mesmo lendo um array local**. Essa é a
-fronteira desenhada para a migração ao Supabase (planejada): trocar a implementação
-dessa função não deve exigir mudança em `catalogo.js`. A consulta equivalente está
-escrita em comentário no fim de `js/data/aneis-formatura.js`.
+Detalhe fácil de errar: `categorias[].variante` decide o corte da foto.
+`produto` são as fotos recortadas, deitadas (`5/4` + `contain` + `drop-shadow`,
+modificadores `--produto`); `foto` são as de aliança, em pé (`4/5` + `cover`).
+Sem o modificador certo, o `cover` corta justamente o aro do anel.
 
-Regras do dado: preço sempre em **centavos inteiros** (`precoCentavos: 317900`),
-formatado só na exibição; o **SKU vem do nome do arquivo da foto** e é usado para
-logística interna do cliente, então é chave de negócio, não detalhe visual.
+## Banco
 
-As páginas de alianças ainda têm os cards escritos à mão no HTML — só a de formatura
-foi migrada para dados. Ao mexer nelas, considere migrar em vez de duplicar markup.
+Migrations versionadas em `supabase/migrations/`, aplicadas por
+`npx supabase db push --linked` ou coladas no SQL Editor. Convenções que valem
+para toda migration nova:
 
-## Pipeline de imagens de produto
+- cabeçalho em português explicando **o porquê**, não o quê;
+- idempotente (`if not exists` / `create or replace` / `on conflict`);
+- `enable row level security` em **toda** tabela;
+- toda view com `with (security_invoker = true)` — sem isso a view roda com os
+  direitos do dono, ignora a RLS de baixo e vaza dado de cliente;
+- `revoke`/`grant` explícito em função `security definer`;
+- bloco `CONFERÊNCIA` no fim, com a linha do resultado esperado.
 
-Os originais ficam em `aneisFormatura/`, com o nome carregando os dois campos de
-controle: `CODIGO_R$PRECO.png` (ex.: `3187_R$2420.png`). São PNGs de ~2,4 MB com
-recorte alpha (fundo transparente).
+Em policy, use `(select auth.uid())` e não `auth.uid()` solto: dentro do
+parêntese o Postgres avalia uma vez; solto, chama a função uma vez por linha.
 
-`tools/importar-aneis-formatura.py` apara a moldura transparente e gera
-`produtos/formatura/{sku}.webp` (960px) e `{sku}-sm.webp` (480px) — usados juntos
-num `srcset`. O script é idempotente e, ao final, **confere o preço do nome do
-arquivo contra `precoCentavos` da ficha**, avisando divergências e fotos sem ficha.
-Ao chegar foto nova: jogar na pasta, rodar o script, criar a ficha.
+`public.is_admin()` sustenta a RLS do painel inteiro. É `security definer` com
+`set search_path = ''` — sem isso, a policy de `profiles` chamaria `is_admin()`
+em recursão infinita, e o search_path aberto é porta de escalada de privilégio.
 
-`aneisFormatura/` tem 33 MB e ainda não está no git; o repo já carrega ~94 MB por
-causa dos `.mp4` na raiz. Pense duas vezes antes de commitar mídia pesada.
+**Índice em toda coluna de chave estrangeira.** O Postgres não cria sozinho.
 
-## CSS: camadas aditivas
+## Modo demonstração
 
-`style.css` → `aliancas.css` → `categoria.css`, nessa ordem em todas as páginas de
-categoria. A convenção do projeto é que **cada camada só soma; nenhuma redefine
-regra da anterior**. Os tokens estão espalhados em dois `:root`: cores e `--nav-h`
-em `style.css`, fontes e linhas (`--font-serif`, `--hairline`, `--gold-line`) em
-`aliancas.css`.
+Sem `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` em
+`.env.local`, o site continua abrindo: a vitrine lê o catálogo local e o painel
+usa `lib/admin/dados-demo.ts`, com um aviso na tela. Serve para conferir layout
+sem banco. `lib/supabase/config.ts` é quem decide.
 
-Detalhe fácil de errar: `.ringCard__media` padrão é `4/5` com `object-fit: cover`
-(fotos de aliança, em pé). As fotos de produto recortadas são deitadas e usam os
-modificadores `--produto` (`5/4` + `contain` + `drop-shadow`); sem eles o `cover`
-corta justamente o aro do anel.
+**Nenhuma service-role key entra neste projeto.** Quem protege os dados é a RLS.
+A carga inicial do catálogo é SQL colado no SQL Editor (`npm run seed`),
+justamente para não precisar dessa chave.
+
+## Gráficos e mapa
+
+- O mapa do Brasil é **SVG inline** de `lib/geo/brasil-uf.ts`, gerado uma vez da
+  malha do IBGE e versionado. Sem biblioteca de mapa, sem rede em runtime.
+- A escala do coroplético é por **raiz quadrada** do faturamento. Linear, o
+  estado líder apaga o resto do país.
+- A paleta categórica de `lib/admin/format.ts` foi **conferida por script**
+  (skill `dataviz`), não escolhida no olho. Ao mexer nela, rode o validador de
+  novo — o comentário no arquivo traz o comando. Vermelho e verde nunca ficam
+  adjacentes, e os pares críticos se separam por luminosidade.
+- Todo gráfico precisa de **estado vazio textual**: com banco novo eles nascem
+  sem dado, e um gráfico vazio parece defeito.
 
 ## Animações
 
-Os reveals de `aliancas.js` (`.js-reveal`, `.js-reveal-stagger`) são montados **na
-carga da página**. Conteúdo renderizado depois — como a grade do catálogo — não é
-capturado por eles: quem renderiza precisa animar os próprios elementos, como
-`catalogo.js` faz em `revelar()`. Todas as animações respeitam
-`prefers-reduced-motion`.
+Os reveals GSAP vivem em `components/Reveal.tsx`, portados do protótipo **sem
+alteração de parâmetro** — duração, easing e pontos de gatilho são a assinatura
+do site. `.js-reveal-catalogo` existe separado de `.js-reveal-stagger` porque a
+grade do catálogo tinha stagger e gatilho próprios.
 
-Os vídeos (`hero`, alianças, símbolos) são `autoplay`/`loop`/`muted` no HTML;
-`main.js` só dá `pause()` no que sai da viewport, porque três decoders simultâneos
-travam a rolagem no celular.
+`components/VideoAutoplay.tsx` dá `pause()` nos vídeos fora da viewport. Não é
+sobra: três decoders simultâneos travam a rolagem no celular.
+
+Tudo respeita `prefers-reduced-motion`.
 
 ## Pendências conhecidas
 
-- "Comprar" e "Ver detalhes" são `href="#"`: não há carrinho, checkout nem página
-  de produto.
-- No celular (~390px) o logo e os links do nav se sobrepõem, em todas as páginas.
+- **Supabase ainda não criado** — migrations prontas, chaves pendentes.
+- Carrinho, checkout e página de produto não existem: "Comprar" e "Ver
+  detalhes" ainda são `href="#"`. Sem o CEP do checkout, o mapa só se alimenta
+  de pedido lançado à mão.
+- Mercado Pago (gateway escolhido) fica para o Módulo 2.
+- Sem os tipos gerados do banco (`supabase gen types`), há um cast em
+  `lib/admin/listas.ts` que sai quando o projeto existir.
+- No celular (~390px) o logo e os links do nav se sobrepõem.
+- `aneisFormatura/` (33 MB de fotos originais) e `public/produtos/` seguem fora
+  e dentro do git respectivamente; pense duas vezes antes de commitar mídia.
