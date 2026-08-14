@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { BotaoComprar } from "@/components/BotaoComprar";
 import { Footer } from "@/components/Footer";
 import {
-  buscarCategoria, buscarProduto, formatarPreco, linhaDoMaterial, listarProdutos,
+  buscarCategoria, buscarProduto, formatarPreco, linhaDoMaterial, listarTodosOsProdutos,
 } from "@/lib/catalogo";
 
 import "../produto.css";
@@ -14,9 +14,11 @@ import "../produto.css";
  * `href="#"` porque a página não existia.
  */
 export async function generateStaticParams() {
-  const categorias = ["aneis-formatura", "aliancas-ouro", "aliancas-prata"];
-  const listas = await Promise.all(categorias.map((c) => listarProdutos(c)));
-  return listas.flat().map((p) => ({ slug: p.slug }));
+  // Antes os três slugs de categoria estavam escritos aqui. Com o catálogo no
+  // banco isso viraria mentira no dia em que uma categoria nova fosse criada
+  // pelo painel: as peças dela simplesmente não ganhariam página.
+  const produtos = await listarTodosOsProdutos();
+  return produtos.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({

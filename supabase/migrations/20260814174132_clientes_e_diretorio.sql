@@ -50,7 +50,49 @@ create policy "Admin gerencia clientes manuais" on public.clientes_manuais
 
 
 -- ---------------------------------------------------------------------------
--- 2) vw_clientes — as duas origens numa lista só
+-- 2) email_dos_clientes() — a única porta para o e-mail
+--
+--    O e-mail mora em auth.users, e copiá-lo para profiles criaria duas versões
+--    da mesma verdade, que divergem no primeiro "trocar e-mail". Só que o
+--    schema `auth` é fechado: no Supabase os papéis `anon` e `authenticated`
+--    NÃO têm SELECT em auth.users. Uma view com security_invoker que lesse
+--    aquela tabela direto falharia com "permission denied" até para o admin —
+--    a aba Clientes simplesmente não abriria.
+--
+--    Daí esta função: SECURITY DEFINER (roda com direitos do dono, alcança
+--    auth.users) mas com a checagem de admin DENTRO do corpo. Para quem não é
+--    admin ela não devolve nada — nem erro, nem linha. É o mínimo de privilégio
+--    elevado possível: expõe duas colunas, id e e-mail, e só para o time.
+--
+--    `anon` também recebe EXECUTE pelo mesmo motivo do is_admin(): assim uma
+--    consulta anônima à view devolve lista vazia em vez de estourar erro.
+-- ---------------------------------------------------------------------------
+-- A view depende da função. Derrubar a view antes deixa esta migration segura
+-- de rodar de novo mesmo que um dia a assinatura da função mude — o Postgres
+-- recusa substituir função com dependente vivo.
+drop view if exists public.vw_clientes;
+
+create or replace function public.email_dos_clientes()
+returns table (id uuid, email text)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select u.id, u.email::text
+    from auth.users u
+   where public.is_admin();
+$$;
+
+revoke execute on function public.email_dos_clientes() from public;
+grant execute on function public.email_dos_clientes() to anon, authenticated;
+
+comment on function public.email_dos_clientes() is
+  'Devolve id e e-mail das contas, e SOMENTE quando quem chama é admin. Existe porque auth.users é inacessível aos papéis do cliente.';
+
+
+-- ---------------------------------------------------------------------------
+-- 3) vw_clientes — as duas origens numa lista só
 --
 --    É esta view que cumpre "a lista se atualiza conforme eles vão se
 --    cadastrando no site": ninguém sincroniza nada, a conta nova aparece porque
@@ -62,15 +104,20 @@ create policy "Admin gerencia clientes manuais" on public.clientes_manuais
 --    os clientes da loja. Com ele, a view enxerga exatamente o que quem
 --    consulta poderia enxergar sozinho — ou seja, só admin.
 --
---    O e-mail vem de auth.users porque é lá que ele mora; copiá-lo para
---    profiles criaria duas versões da mesma verdade.
+--    O LEFT JOIN (e não INNER) com a função é de propósito: se um dia o e-mail
+--    não vier, a pessoa continua aparecendo na lista sem e-mail, em vez de
+--    desaparecer do diretório sem ninguém notar.
 -- ---------------------------------------------------------------------------
 drop view if exists public.vw_clientes;
 create view public.vw_clientes with (security_invoker = true) as
   select
     p.id,
-    coalesce(nullif(trim(p.nome), ''), split_part(u.email, '@', 1)) as nome,
-    u.email,
+    coalesce(
+      nullif(trim(p.nome), ''),
+      nullif(split_part(coalesce(e.email, ''), '@', 1), ''),
+      'Sem nome'
+    ) as nome,
+    e.email,
     p.telefone,
     p.cidade,
     p.uf,
@@ -78,7 +125,7 @@ create view public.vw_clientes with (security_invoker = true) as
     p.created_at,
     null::text   as observacoes
   from public.profiles p
-  join auth.users u on u.id = p.id
+  left join public.email_dos_clientes() e on e.id = p.id
   where p.role = 'cliente'
 
   union all
@@ -114,6 +161,9 @@ union all
 select 'RLS em clientes_manuais', (relrowsecurity)::text from pg_class where relname = 'clientes_manuais'
 union all
 select 'uf tem FK para ufs', count(*)::text
-  from pg_constraint where conrelid = 'public.clientes_manuais'::regclass and contype = 'f';
+  from pg_constraint where conrelid = 'public.clientes_manuais'::regclass and contype = 'f'
+union all
+select 'email_dos_clientes e security definer', count(*)::text
+  from pg_proc where proname = 'email_dos_clientes' and prosecdef;
 
--- Esperado: 1 | 1 | 1 | true | 1
+-- Esperado: 1 | 1 | 1 | true | 1 | 1

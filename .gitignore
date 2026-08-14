@@ -14,3 +14,12 @@ next-env.d.ts
 # Ferramentas
 /.playwright-mcp/
 /.vercel
+
+# Mídia de origem, fora do git de propósito
+#
+# aneisFormatura/ são as fotos originais (33 MB) que alimentam
+# tools/importar-aneis-formatura.py; produtos/ é a saída dele, que já está
+# versionada em public/produtos/. Commitar qualquer uma das duas é engordar
+# todo clone e todo deploy com o mesmo pixel duas vezes.
+/aneisFormatura/
+/produtos/

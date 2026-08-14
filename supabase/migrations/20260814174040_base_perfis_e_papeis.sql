@@ -92,8 +92,18 @@ as $$
   );
 $$;
 
+--    Sobre quem pode CHAMAR: `anon` também recebe, e isso é necessário, não
+--    descuido. Várias policies abaixo têm a forma `<condição> or is_admin()`.
+--    Para um visitante sem sessão a primeira parte dá NULL (auth.uid() é nulo),
+--    então o Postgres precisa avaliar is_admin() para decidir — e se `anon` não
+--    tivesse EXECUTE, a consulta morreria com "permission denied for function"
+--    em vez de devolver zero linhas. Erro no lugar de lista vazia, o que é pior
+--    de diagnosticar e assusta sem motivo.
+--
+--    Conceder não abre nada: a função só responde sobre QUEM ESTÁ CHAMANDO, e
+--    para uma sessão anônima a resposta é sempre false.
 revoke execute on function public.is_admin() from public;
-grant execute on function public.is_admin() to authenticated;
+grant execute on function public.is_admin() to anon, authenticated;
 
 
 -- ---------------------------------------------------------------------------
@@ -163,7 +173,8 @@ select 'funcao is_admin', count(*)::text from pg_proc where proname = 'is_admin'
 union all
 select 'is_admin e security definer', (prosecdef)::text from pg_proc where proname = 'is_admin'
 union all
-select 'anon NAO executa is_admin', (not has_function_privilege('anon', 'public.is_admin()', 'execute'))::text
+select 'anon executa is_admin (responde false)',
+       has_function_privilege('anon', 'public.is_admin()', 'execute')::text
 union all
 select 'trigger de novo usuario', count(*)::text from pg_trigger where tgname = 'ao_criar_usuario'
 union all

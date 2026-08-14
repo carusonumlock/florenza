@@ -53,12 +53,22 @@ aprovação explícita: consertar é mudar estética.
 
 ## Catálogo dirigido a dados
 
-Fluxo: `lib/data/catalogo-local.ts` → `lib/catalogo.ts` → páginas.
+Fluxo: Supabase → `lib/catalogo.ts` → páginas.
 
 **`lib/catalogo.ts` é a fronteira.** As páginas não sabem de onde os produtos
-vêm. Hoje vêm de um módulo local; quando o Supabase estiver plugado, só o corpo
-dessas funções muda — a consulta equivalente já está escrita em comentário no
-topo do arquivo.
+vêm. Com as chaves configuradas vêm do banco; sem elas, de
+`lib/data/catalogo-local.ts`.
+
+A queda para o catálogo local só acontece quando o Supabase **não está
+configurado** — serve para quem clona o repositório sem `.env.local`. Se estiver
+configurado e a consulta falhar, o erro sobe em vez de cair no local: numa
+joalheria, servir preço velho em silêncio é pior que mostrar erro, porque o
+preço do ouro muda e a peça sairia pelo valor errado.
+
+A vitrine usa `lib/supabase/publico.ts`, não o cliente de `server.ts`. O motivo é
+de renderização: `server.ts` lê os cookies da requisição, e ler cookie faz o Next
+marcar a página como dinâmica — as três páginas de categoria e as 20 de produto
+deixariam de ser pré-renderizadas. Conteúdo público não depende de quem olha.
 
 Regras do dado, todas duras:
 - **Preço sempre em centavos inteiros** (`precoCentavos: 317900`), nunca float.
@@ -77,9 +87,16 @@ Sem o modificador certo, o `cover` corta justamente o aro do anel.
 
 ## Banco
 
+O projeto existe: `FLORENZA` (`jydcgsxzinrguounnmpi`), Postgres 17. Sete
+migrations aplicadas.
+
 Migrations versionadas em `supabase/migrations/`, aplicadas por
-`npx supabase db push --linked` ou coladas no SQL Editor. Convenções que valem
-para toda migration nova:
+`npx supabase db push --linked` ou coladas no SQL Editor. **O nome do arquivo
+começa com a versão registrada no banco** — se divergir, um `db push` reaplica
+tudo. `supabase/aplicar-tudo.sql` é a concatenação de todas mais o catálogo,
+gerada, para recriar o banco do zero numa colada só.
+
+Convenções que valem para toda migration nova:
 
 - cabeçalho em português explicando **o porquê**, não o quê;
 - idempotente (`if not exists` / `create or replace` / `on conflict`);
@@ -96,14 +113,39 @@ parêntese o Postgres avalia uma vez; solto, chama a função uma vez por linha.
 `set search_path = ''` — sem isso, a policy de `profiles` chamaria `is_admin()`
 em recursão infinita, e o search_path aberto é porta de escalada de privilégio.
 
+**`is_admin()` tem EXECUTE para `anon` de propósito.** As policies têm a forma
+`<condição> or is_admin()`; sem sessão a primeira parte dá `NULL`, então o
+Postgres precisa avaliar a segunda. Sem o grant, a consulta anônima morre com
+"permission denied for function" em vez de devolver lista vazia. Conceder não
+abre nada: a função só responde sobre quem chama. Vale o mesmo para
+`email_dos_clientes()`. O linter do Supabase aponta as duas; as duas ficam.
+
+**`auth.users` é inalcançável pelos papéis do cliente.** Nem `anon` nem
+`authenticated` têm SELECT ali. Uma view com `security_invoker` que leia aquela
+tabela direto falha com *permission denied* até para o admin. Por isso o e-mail
+sai por `public.email_dos_clientes()` — `security definer`, com a checagem de
+admin dentro do corpo.
+
+**Função de trigger não recebe EXECUTE.** O PostgREST expõe toda função de
+`public` em `/rest/v1/rpc/<nome>`, e as de trigger são `security definer`.
+Revogar não desliga a trigger: o Postgres confere essa permissão ao criar a
+trigger, não a cada disparo.
+
 **Índice em toda coluna de chave estrangeira.** O Postgres não cria sozinho.
+
+Depois de mexer no schema, rode os Advisors (segurança e performance). Foi o
+que apontou os três achados corrigidos na migration `..._endurecimento`.
 
 ## Modo demonstração
 
 Sem `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` em
 `.env.local`, o site continua abrindo: a vitrine lê o catálogo local e o painel
 usa `lib/admin/dados-demo.ts`, com um aviso na tela. Serve para conferir layout
-sem banco. `lib/supabase/config.ts` é quem decide.
+sem banco, e para quem clonar o repositório sem as chaves.
+`lib/supabase/config.ts` é quem decide.
+
+Com o banco ligado — que é o estado atual — esse caminho não roda. Ele não é
+plano B de produção: ver a regra em "Catálogo dirigido a dados".
 
 **Nenhuma service-role key entra neste projeto.** Quem protege os dados é a RLS.
 A carga inicial do catálogo é SQL colado no SQL Editor (`npm run seed`),
@@ -136,13 +178,18 @@ Tudo respeita `prefers-reduced-motion`.
 
 ## Pendências conhecidas
 
-- **Supabase ainda não criado** — migrations prontas, chaves pendentes.
-- Carrinho, checkout e página de produto não existem: "Comprar" e "Ver
-  detalhes" ainda são `href="#"`. Sem o CEP do checkout, o mapa só se alimenta
-  de pedido lançado à mão.
+- **Ninguém é admin ainda.** O painel só abre depois de um `update
+  public.profiles set role = 'admin'` — passo manual e consciente, de propósito.
+- **Upload de foto pelo painel** não está ligado. O formulário existe, o bucket
+  e as policies também; falta o envio do arquivo. Hoje a foto entra pelo script
+  Python.
 - Mercado Pago (gateway escolhido) fica para o Módulo 2.
-- Sem os tipos gerados do banco (`supabase gen types`), há um cast em
-  `lib/admin/listas.ts` que sai quando o projeto existir.
+- Sem os tipos gerados do banco (`supabase gen types --project-id
+  jydcgsxzinrguounnmpi`), há um cast em `lib/admin/listas.ts`. Exige
+  `supabase login`, que é interativo.
+- O projeto nasceu em **us-east-2**, não em São Paulo: ~120 ms a mais por
+  consulta. Trocar exige projeto novo — o schema está todo versionado, então é
+  colar `aplicar-tudo.sql` e trocar duas variáveis.
 - No celular (~390px) o logo e os links do nav se sobrepõem.
 - `aneisFormatura/` (33 MB de fotos originais) e `public/produtos/` seguem fora
   e dentro do git respectivamente; pense duas vezes antes de commitar mídia.
