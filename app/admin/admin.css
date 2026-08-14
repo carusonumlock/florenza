@@ -1,0 +1,334 @@
+/* PAINEL ADMINISTRATIVO — vocabulário visual próprio.
+ *
+ * Por que CSS de verdade e não só Tailwind: as camadas do Tailwind entram em
+ * `@layer utilities`, e no CSS qualquer regra sem camada vence qualquer regra
+ * em camada. Como estilos/style.css é CSS comum e define `a { color: inherit }`
+ * e o reset do Tailwind (preflight) foi deixado de fora de propósito para não
+ * desmontar o site, cor e tipografia precisam vir daqui. O Tailwind segue em
+ * uso no painel para o que não colide: grid, flex, gap, espaçamento.
+ *
+ * As cores NÃO são novas. Todas saem das variáveis que já existem em
+ * estilos/style.css e estilos/aliancas.css — o painel tem que parecer a
+ * Florenza, e mudar a paleta do site muda o painel junto.
+ *
+ * Tudo aqui está escopado em `.adm` e não escapa para a vitrine.
+ */
+
+/* ---------- Reset escopado ----------
+ * Sem o preflight do Tailwind, dentro do painel valem os padrões do navegador:
+ * h3 com margem, ul com marcador, button cinza de sistema. Isto arruma, só
+ * dentro de .adm.
+ *
+ * `:where()` não é enfeite: ele zera a especificidade do que está dentro, de
+ * modo que o reset conte como se fosse `.adm` sozinho. Sem isso, `.adm button`
+ * (0,1,1) venceria `.adm-botao` (0,1,0) e o botão principal ficaria sem fundo
+ * nem borda — que foi exatamente o que aconteceu na primeira versão deste
+ * arquivo. Reset tem que ser fácil de sobrescrever; é o trabalho dele. */
+.adm :where(h1, h2, h3, h4, p, figure) { margin: 0; }
+.adm :where(ul, ol) { margin: 0; padding: 0; list-style: none; }
+.adm :where(button) { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+.adm :where(input, select, textarea) { font: inherit; color: inherit; }
+.adm :where(table) { border-collapse: collapse; }
+
+.adm {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  padding: calc(var(--nav-h) + 40px) 32px 96px;
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+/* ---------- Cabeçalho ---------- */
+.adm__eyebrow {
+  font-size: 11px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+}
+.adm__titulo {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(32px, 4vw, 46px);
+  line-height: 1.1;
+  margin-top: 10px;
+  color: var(--ink);
+}
+.adm__sub {
+  margin-top: 10px;
+  font-size: 13.5px;
+  color: var(--ink-dim);
+  max-width: 62ch;
+}
+
+/* ---------- Abas ---------- */
+.adm__abas { display: flex; flex-wrap: wrap; gap: 10px; margin: 34px 0 30px; }
+.adm__aba {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  background: transparent;
+  transition: color .25s, border-color .25s, background-color .25s;
+}
+.adm__aba:hover { color: var(--ink); border-color: var(--gold-line); }
+.adm__aba.is-active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #fffaf2;
+}
+.adm__aba-conta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #fffaf2;
+  font-size: 10px;
+  letter-spacing: 0;
+}
+.adm__aba.is-active .adm__aba-conta { background: #fffaf2; color: var(--gold-ink); }
+
+/* ---------- Cartão de indicador (KPI) ---------- */
+.adm-card {
+  border: 1px solid var(--hairline);
+  background: var(--ivory-soft);
+  padding: 20px 22px;
+}
+.adm-card__rotulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+}
+.adm-card__valor {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  margin-top: 12px;
+  color: var(--ink);
+}
+.adm-card__valor--bom { color: #2f7d4f; }
+.adm-card__valor--atencao { color: #a8760f; }
+.adm-card__valor--ruim { color: #a3312c; }
+.adm-card__nota { margin-top: 4px; font-size: 11px; color: var(--ink-dim); }
+
+/* ---------- Cartão de seção ---------- */
+.adm-secao {
+  border: 1px solid var(--hairline);
+  background: var(--ivory-soft);
+  padding: 26px 26px 28px;
+}
+.adm-secao__titulo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 11px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+}
+.adm-secao__corpo { margin-top: 22px; }
+
+.adm-legenda {
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+/* ---------- Mini indicador dentro de seção ---------- */
+.adm-mini {
+  border: 1px solid var(--hairline);
+  background: var(--ivory);
+  padding: 14px 16px;
+}
+.adm-mini__rotulo {
+  font-size: 9.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.adm-mini__valor {
+  font-family: var(--font-serif);
+  font-size: 19px;
+  margin-top: 5px;
+  color: var(--ink);
+}
+
+/* ---------- Listas (no lugar de <table>) ---------- */
+.adm-lista { display: flex; flex-direction: column; gap: 8px; }
+.adm-lista__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid var(--hairline);
+  background: var(--ivory);
+  padding: 12px 16px;
+  font-size: 13px;
+}
+.adm-lista__nome { color: var(--ink); }
+.adm-lista__meta { font-size: 11.5px; color: var(--ink-dim); }
+
+/* ---------- Formulários ---------- */
+.adm-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+.adm-campo { display: flex; flex-direction: column; gap: 6px; }
+.adm-campo__rotulo {
+  font-size: 9.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.adm-input {
+  min-height: 40px;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--hairline);
+  background: var(--ivory);
+  font-size: 13px;
+  color: var(--ink);
+}
+.adm-input::placeholder { color: var(--ink-dim); opacity: .7; }
+.adm-input:focus {
+  outline: 2px solid rgba(179, 133, 78, .45);
+  outline-offset: 1px;
+  border-color: var(--gold-line);
+}
+
+.adm-botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 20px;
+  background: var(--gold);
+  color: #fffaf2;
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  transition: background-color .25s, opacity .25s;
+}
+.adm-botao:hover { background: var(--gold-ink); }
+.adm-botao:disabled { opacity: .55; cursor: not-allowed; }
+
+.adm-botao--fantasma {
+  background: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--ink-dim);
+  min-height: 34px;
+  padding: 0 14px;
+  font-size: 10px;
+}
+.adm-botao--fantasma:hover { background: transparent; border-color: var(--gold-line); color: var(--ink); }
+.adm-botao--fantasma.is-active { border-color: var(--gold); color: var(--gold-ink); }
+
+.adm-icone {
+  display: inline-flex;
+  padding: 6px;
+  color: var(--ink-dim);
+  transition: color .25s;
+}
+.adm-icone:hover { color: #a3312c; }
+.adm-icone:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ---------- Selo de status ---------- */
+.adm-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+  font-size: 9.5px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+.adm-tag--aguardando { border-color: rgba(168,118,15,.4); color: #a8760f; }
+.adm-tag--pago       { border-color: rgba(47,125,79,.4);  color: #2f7d4f; }
+.adm-tag--producao   { border-color: var(--gold-line);    color: var(--gold-ink); }
+.adm-tag--enviado    { border-color: rgba(27,79,176,.35); color: #2a5aa8; }
+.adm-tag--entregue   { border-color: rgba(47,125,79,.4);  color: #2f7d4f; }
+.adm-tag--cancelado  { border-color: rgba(163,49,44,.35); color: #a3312c; }
+
+/* ---------- Estados vazios e avisos ---------- */
+.adm-vazio {
+  display: grid;
+  place-items: center;
+  min-height: 120px;
+  padding: 20px;
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  text-align: center;
+}
+.adm-aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1px solid var(--gold-line);
+  background: rgba(227, 198, 146, .22);
+  padding: 16px 18px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.adm-aviso strong { color: var(--gold-ink); }
+.adm-aviso code {
+  font-size: 12px;
+  background: rgba(42, 30, 19, .07);
+  padding: 1px 5px;
+}
+.adm-erro { margin-top: 12px; font-size: 12.5px; color: #a3312c; }
+
+/* ---------- Mapa ---------- */
+.adm-mapa { width: 100%; height: auto; display: block; }
+.adm-mapa__uf {
+  stroke: var(--ivory);
+  stroke-width: 1;
+  transition: opacity .2s;
+  cursor: pointer;
+}
+.adm-mapa__uf:hover { opacity: .78; }
+.adm-mapa__uf.is-apagada { cursor: default; }
+.adm-mapa__dica {
+  position: absolute;
+  pointer-events: none;
+  z-index: 5;
+  border: 1px solid var(--hairline);
+  background: var(--ivory);
+  box-shadow: 0 12px 28px -18px rgba(42, 30, 19, .5);
+  padding: 9px 12px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.adm-mapa__dica-uf { font-family: var(--font-serif); font-size: 14px; color: var(--ink); }
+.adm-mapa__dica-linha { font-size: 11px; color: var(--ink-dim); margin-top: 3px; }
+
+.adm-escala { display: flex; align-items: center; gap: 8px; }
+.adm-escala__faixa {
+  width: 120px;
+  height: 8px;
+  background: linear-gradient(90deg, var(--ivory-soft), var(--gold-ink));
+  border: 1px solid var(--hairline);
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 640px) {
+  .adm { padding: calc(var(--nav-h) + 24px) 18px 64px; }
+  .adm-secao { padding: 20px 18px 22px; }
+  .adm-form { flex-direction: column; align-items: stretch; }
+  .adm-campo { width: 100%; }
+}

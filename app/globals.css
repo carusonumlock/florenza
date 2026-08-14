@@ -1,0 +1,56 @@
+/* Camadas do Tailwind — DE PROPÓSITO sem o preflight.
+ *
+ * O preflight é o reset do Tailwind: ele zera margens, tipografia e estilos de
+ * lista no documento inteiro. Aplicado aqui, desmontaria o visual do site que
+ * já está pronto — exatamente o que esta migração não pode fazer. Por isso só
+ * o tema e os utilitários entram.
+ *
+ * A ordem tem uma consequência boa e proposital: `theme` e `utilities` são
+ * camadas nomeadas, e no CSS **qualquer regra sem camada vence qualquer regra
+ * em camada**, independente de ordem ou especificidade. Como estilos/style.css,
+ * aliancas.css e categoria.css são CSS comum (sem @layer), eles ganham do
+ * Tailwind sempre. As utilities existem para as telas novas — /admin, /conta,
+ * /carrinho — e não conseguem alcançar o que já existe nem por acidente.
+ *
+ * Consequência a lembrar ao construir o painel: as poucas regras de elemento de
+ * style.css (`body`, `a { color: inherit }`) também vencem utilitário. Onde
+ * isso incomodar, a saída é uma regra própria do painel, não mexer no site. */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@source "./";
+@source "../components";
+@source "../lib";
+
+/* Tokens da Florenza para o Tailwind enxergar. Os valores NÃO são redefinidos
+ * aqui — cada um aponta para a variável que já existe em estilos/style.css e
+ * estilos/aliancas.css, que seguem sendo a fonte única. Assim o painel usa
+ * `bg-ivory` / `text-gold-ink` e continua preso à paleta do site: mudar a cor
+ * lá muda aqui junto. */
+@theme inline {
+  --color-ivory: var(--ivory);
+  --color-ivory-soft: var(--ivory-soft);
+  --color-ivory-line: var(--ivory-line);
+
+  --color-bg: var(--bg);
+  --color-bg-alt: var(--bg-alt);
+  --color-leather: var(--leather);
+  --color-leather-dark: var(--leather-dark);
+
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-gold-ink: var(--gold-ink);
+
+  --color-text: var(--text);
+  --color-text-dim: var(--text-dim);
+  --color-ink: var(--ink);
+  --color-ink-dim: var(--ink-dim);
+
+  --color-hairline: var(--hairline);
+  --color-gold-line: var(--gold-line);
+
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
+}

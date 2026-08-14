@@ -1,0 +1,719 @@
+/* ============================================================
+   ALIANÇAS — showcase do anel, cena cinematográfica, catálogo,
+   editorial de materiais, categorias e encerramento.
+   Não redefine nada em style.css — apenas soma a ele, reaproveitando
+   os tokens de :root (--bg, --gold, --text, etc.) já declarados lá.
+   ============================================================ */
+
+:root {
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Inter", "Segoe UI", sans-serif;
+  --gold-line: rgba(179, 133, 78, .38);
+  --hairline: rgba(42, 30, 19, .12);
+}
+
+/* ---------- Elementos compartilhados ---------- */
+
+.section-eyebrow {
+  margin: 0 0 14px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+}
+
+/* .btn-outline: pensado para fundos escuros (vídeo de Alianças, moldura
+   do anel). Em fundos claros (bege), use .btn-outline--dark. */
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 30px;
+  border: 1px solid var(--gold);
+  color: var(--gold-bright);
+  text-decoration: none;
+  background: none;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .35s ease, color .35s ease, border-color .35s ease;
+}
+
+.btn-outline:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #1b1108;
+}
+
+.btn-outline--dark {
+  border-color: rgba(42, 30, 19, .4);
+  color: var(--ink);
+}
+
+.btn-outline--dark:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--ivory);
+}
+
+.btn-outline svg { width: 14px; height: 14px; transition: transform .35s ease; }
+.btn-outline:hover svg { transform: translateX(3px); }
+
+/* ---------- Categorias — carrossel horizontal entre a Hero e Alianças.
+   Uma categoria por vez: a imagem (PNG sem fundo) flutua sobre o bege,
+   sem moldura nem corte — só um drop-shadow suave que acompanha o
+   recorte real do PNG. Arraste/role o track ou use as setas para
+   avançar; os pontos refletem/controlam o item ativo. ---------- */
+
+.categoryShowcase {
+  position: relative;
+  padding: clamp(64px, 10vw, 110px) 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  background: var(--ivory);
+}
+
+.categoryShowcase__viewport {
+  width: 100%;
+  max-width: 620px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.categoryShowcase__track {
+  flex: 1;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.categoryShowcase__track::-webkit-scrollbar { display: none; }
+
+.categoryShowcase__item {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 8px 4px;
+  text-align: center;
+}
+
+/* A imagem é o botão da categoria: abre a página própria em aba nova. */
+.categoryShowcase__link {
+  display: block;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: transform .4s ease;
+}
+
+.categoryShowcase__link:hover,
+.categoryShowcase__link:focus-visible {
+  transform: scale(1.03);
+}
+
+.categoryShowcase__link:focus-visible {
+  outline: 1px solid var(--gold);
+  outline-offset: 10px;
+}
+
+.categoryShowcase__img {
+  width: auto;
+  height: clamp(220px, 34vw, 380px);
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 24px 26px rgba(42, 30, 19, .28));
+  transition: filter .4s ease;
+}
+
+.categoryShowcase__link:hover .categoryShowcase__img,
+.categoryShowcase__link:focus-visible .categoryShowcase__img {
+  filter: drop-shadow(0 30px 34px rgba(42, 30, 19, .38));
+}
+
+.categoryShowcase__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Inter", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+  text-decoration: none;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--gold-line);
+  transition: color .3s ease, border-color .3s ease;
+}
+
+.categoryShowcase__cta:hover {
+  color: var(--ink);
+  border-color: var(--gold);
+}
+
+.categoryShowcase__cta svg {
+  width: 13px;
+  height: 13px;
+  transition: transform .35s ease;
+}
+
+.categoryShowcase__cta:hover svg { transform: translateX(3px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .categoryShowcase__link,
+  .categoryShowcase__link:hover,
+  .categoryShowcase__link:focus-visible { transform: none; }
+}
+
+.categoryShowcase__desc {
+  margin: 0;
+  max-width: 40ch;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(15px, 1.6vw, 18px);
+  line-height: 1.5;
+  color: var(--ink-dim);
+}
+
+.categoryShowcase__arrow {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--gold-line);
+  border-radius: 50%;
+  background: none;
+  color: var(--gold-ink);
+  cursor: pointer;
+  transition: background .3s ease, color .3s ease, border-color .3s ease;
+}
+
+.categoryShowcase__arrow:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #1b1108;
+}
+
+.categoryShowcase__arrow svg { width: 18px; height: 18px; }
+
+.categoryShowcase__dots {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.categoryShowcase__dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--gold-line);
+  cursor: pointer;
+  transition: background .3s ease, transform .3s ease;
+}
+
+.categoryShowcase__dot.is-active {
+  background: var(--gold);
+  transform: scale(1.3);
+}
+
+@media (max-width: 640px) {
+  .categoryShowcase { padding: 56px 20px; }
+  .categoryShowcase__viewport { gap: 6px; }
+  .categoryShowcase__arrow { width: 34px; height: 34px; }
+}
+
+/* ---------- Alianças — cena cinematográfica ----------
+   aliancas-pedestal.mp4 (gerado a partir da sequência cat/champola/, que
+   foi removida do repositório na limpeza de assets) toca em loop como
+   background da própria seção. O conteúdo fica à esquerda; o pedestal
+   aparece através do vídeo à direita. */
+
+.aliancasFeature {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* Seção sobre vídeo escuro: o eyebrow compartilhado precisa do dourado
+   claro (não do dourado escuro usado nas seções bege). */
+.aliancasFeature__content .section-eyebrow { color: var(--gold-bright); }
+
+.aliancasFeature__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.aliancasFeature__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(19, 12, 6, .86) 0%, rgba(19, 12, 6, .6) 34%, rgba(19, 12, 6, .16) 60%, rgba(19, 12, 6, 0) 80%),
+    linear-gradient(180deg, rgba(19, 12, 6, .3) 0%, rgba(19, 12, 6, 0) 22%, rgba(19, 12, 6, .5) 100%);
+  pointer-events: none;
+}
+
+.aliancasFeature__content {
+  position: relative;
+  z-index: 1;
+  width: min(560px, 46%);
+  margin-left: clamp(24px, 8vw, 120px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  text-align: left;
+}
+
+.aliancasFeature__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(48px, 7vw, 96px);
+  line-height: .95;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.aliancasFeature__subtitle {
+  margin: 0 0 6px;
+  font-family: var(--font-sans);
+  font-size: clamp(13px, 1.4vw, 16px);
+  font-weight: 500;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--gold-bright);
+}
+
+.aliancasFeature__desc {
+  margin: 0 0 10px;
+  max-width: 38ch;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text-dim);
+}
+
+@media (max-width: 860px) {
+  .aliancasFeature { min-height: 92vh; align-items: flex-end; padding-bottom: 56px; }
+
+  .aliancasFeature__scrim {
+    background: linear-gradient(180deg, rgba(19, 12, 6, .12) 0%, rgba(19, 12, 6, .22) 42%, rgba(19, 12, 6, .92) 100%);
+  }
+
+  .aliancasFeature__content {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 24px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .aliancasFeature__desc { max-width: 34ch; }
+}
+
+/* ---------- Nossa Coleção ---------- */
+
+.catalog {
+  position: relative;
+  isolation: isolate;
+  background: var(--ivory);
+  padding: clamp(88px, 12vw, 150px) 32px 120px;
+}
+
+.catalog__head,
+.catalog__grid,
+.catalog__more {
+  position: relative;
+  z-index: 1;
+}
+
+.catalog__head {
+  max-width: 1200px;
+  margin: 0 auto 52px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--hairline);
+  padding-bottom: 32px;
+}
+
+.catalog__heading { max-width: 620px; }
+
+.catalog__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(32px, 4.2vw, 54px);
+  letter-spacing: .01em;
+  color: var(--ink);
+}
+
+.catalog__filters {
+  display: flex;
+  gap: 30px;
+  font-family: var(--font-sans);
+  padding-bottom: 4px;
+}
+
+.catalog__filter {
+  background: none;
+  border: none;
+  border-bottom: 1px solid transparent;
+  padding: 0 0 8px;
+  color: var(--ink-dim);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color .3s ease, border-color .3s ease;
+}
+
+.catalog__filter:hover { color: var(--ink); }
+
+.catalog__filter.is-active {
+  color: var(--gold-ink);
+  border-color: var(--gold);
+}
+
+.catalog__grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 26px;
+}
+
+.ringCard {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  background: var(--ivory-soft);
+  box-shadow: 0 18px 40px -28px rgba(42, 30, 19, .3);
+  transition: opacity .38s ease, transform .38s ease, border-color .45s ease, box-shadow .45s ease;
+}
+
+.ringCard:hover {
+  border-color: var(--gold-line);
+  box-shadow: 0 22px 46px -24px rgba(42, 30, 19, .4);
+}
+
+.ringCard.is-hidden {
+  opacity: 0;
+  transform: scale(.96);
+  pointer-events: none;
+}
+
+.ringCard__fav {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(244, 237, 225, .85);
+  border: 1px solid var(--hairline);
+  border-radius: 50%;
+  color: var(--ink);
+  cursor: pointer;
+  opacity: .85;
+  transition: opacity .3s ease, border-color .3s ease;
+  z-index: 2;
+}
+
+.ringCard__fav:hover { opacity: 1; border-color: var(--gold); }
+.ringCard__fav svg { width: 14px; height: 14px; }
+
+.ringCard__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--ivory-line);
+}
+
+.ringCard__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  transform: scale(1.04);
+  transition: transform .55s cubic-bezier(.22, .61, .36, 1), filter .55s ease;
+}
+
+.ringCard:hover .ringCard__img { transform: scale(1.09); }
+
+.ringCard__body { padding: 22px 22px 24px; }
+
+.ringCard__name {
+  margin: 0 0 4px;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 21px;
+  letter-spacing: .01em;
+  color: var(--ink);
+}
+
+.ringCard__material {
+  margin: 0 0 12px;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.ringCard__desc {
+  margin: 0 0 18px;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--ink-dim);
+}
+
+.ringCard__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+}
+
+.ringCard__price {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  color: var(--gold-ink);
+}
+
+.ringCard__view {
+  color: var(--ink-dim);
+  font-size: 15px;
+  line-height: 1;
+  display: inline-block;
+  text-decoration: none;
+  transition: transform .35s ease, color .35s ease;
+}
+
+.ringCard:hover .ringCard__view,
+.ringCard:focus-within .ringCard__view {
+  transform: translateX(4px);
+  color: var(--gold-ink);
+}
+
+.catalog__more { text-align: center; margin-top: 54px; }
+
+@media (max-width: 1100px) {
+  .catalog__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .catalog { padding: 80px 20px 88px; }
+  .catalog__head { flex-direction: column; align-items: flex-start; gap: 22px; padding-bottom: 26px; }
+  .catalog__filters { gap: 20px; flex-wrap: wrap; }
+  .catalog__grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+}
+
+/* ---------- Outras Categorias ----------
+   Grade estática, sem paredes de mármore e sem pin de scroll — reaproveita
+   a estrutura exata de .ringCard do catálogo de Alianças, só que para as
+   demais categorias da Florenza. */
+
+.categorySection {
+  position: relative;
+  padding: clamp(80px, 10vw, 130px) 32px;
+  background: var(--ivory);
+}
+
+.categorySection__eyebrow {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.categorySection__grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(10px, 1.6vw, 22px);
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.categorySection .ringCard__media {
+  aspect-ratio: auto;
+  height: clamp(110px, 20vh, 220px);
+}
+
+.categorySection .ringCard__body { padding: 16px 16px 18px; }
+.categorySection .ringCard__name { font-size: 17px; }
+.categorySection .ringCard__desc { font-size: 11.5px; margin-bottom: 14px; }
+
+.ringCard__media--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ringCard__initial {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(40px, 6vw, 64px);
+  color: var(--gold-ink);
+  opacity: .45;
+  transition: opacity .4s ease, transform .4s ease;
+}
+
+.ringCard:hover .ringCard__initial {
+  opacity: .6;
+  transform: scale(1.08);
+}
+
+@media (max-width: 1300px) {
+  .categorySection__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .categorySection { padding: 64px 20px 80px; }
+  .categorySection__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 420px; margin: 0 auto; }
+}
+
+/* ---------- Encerramento ----------
+   Mesmo tratamento editorial do .ringShowcase: peça curta, autoplay, em
+   loop, sem prender a navegação. simbolos-marcas.mp4 foi gerado a partir
+   da sequência simbolos-frames (300 quadros), removida do repositório na
+   limpeza de assets. */
+
+.symbolsShowcase {
+  position: relative;
+  padding: clamp(64px, 9vw, 110px) 32px;
+  display: flex;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 0%, rgba(179, 133, 78, .22) 0%, transparent 65%),
+    var(--bg);
+}
+
+.symbolsShowcase__inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 900px;
+}
+
+.symbolsShowcase__video {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1280 / 720;
+  display: block;
+  box-shadow: 0 30px 70px -30px rgba(0, 0, 0, .75);
+}
+
+@media (max-width: 640px) {
+  .symbolsShowcase { padding: 56px 20px; }
+}
+
+/* ---------- Rodapé (expandido) ---------- */
+
+.footer__grid {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 40px;
+  padding-bottom: 40px;
+}
+
+.footer__brand .footer__mark { margin-bottom: 16px; }
+
+.footer__tagline {
+  margin: 0;
+  max-width: 30ch;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--text-dim);
+}
+
+.footer__heading {
+  margin: 0 0 18px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.footer__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.footer__list a {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color .25s ease;
+}
+
+.footer__list a:hover { color: var(--gold-bright); }
+
+.footer .footer__inner {
+  max-width: 1080px;
+  justify-content: center;
+  border-top: 1px solid var(--hairline);
+  padding-top: 22px;
+}
+
+@media (max-width: 900px) {
+  .footer__grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 560px) {
+  .footer__grid { grid-template-columns: 1fr; gap: 32px; text-align: left; }
+}
+
+/* ---------- Animação de entrada (GSAP define o estado inicial via JS;
+   estas classes só existem para o motor de reveal localizar os alvos) ---------- */
+
+.js-reveal,
+.js-reveal-stagger > * { will-change: opacity, transform; }

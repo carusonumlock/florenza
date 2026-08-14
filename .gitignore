@@ -1,2 +1,16 @@
 node_modules/
 logos/ezgif-134dc94e9061726c-png-split/
+
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Chaves — nunca versionar
+.env
+.env*.local
+
+# Ferramentas
+/.playwright-mcp/
+/.vercel
